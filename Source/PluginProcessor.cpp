@@ -8,6 +8,11 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include <cstdio>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <array>
 
 //==============================================================================
 DAWVSCAudioProcessor::DAWVSCAudioProcessor()
@@ -19,12 +24,13 @@ DAWVSCAudioProcessor::DAWVSCAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ),
-    initialized(false)
+                       )
 #endif
 {
-    initialized = true;
     DBG("Initialized DAWVSC Plugin");
+    char result[1024];
+    executeGitCommand("git --version", result);
+    DBG("Git version: " << result);
 }
 
 DAWVSCAudioProcessor::~DAWVSCAudioProcessor()
@@ -184,6 +190,20 @@ void DAWVSCAudioProcessor::setStateInformation (const void* data, int sizeInByte
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+}
+
+void DAWVSCAudioProcessor::executeGitCommand(const char* command, char* result)
+{
+    std::array<char, 128> buffer;
+    std::string resultString;
+    std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(command, "r"), _pclose);
+    if (!pipe) {
+        throw std::runtime_error("popen() failed!");
+    }
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+        resultString += buffer.data();
+    }
+    std::strncpy(result, resultString.c_str(), resultString.size() + 1);
 }
 
 //==============================================================================
