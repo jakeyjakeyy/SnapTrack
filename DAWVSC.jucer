@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="M2pnh6" name="DAWVSC" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginVST3Category="Tools">
   <MAINGROUP id="e3OOF9" name="DAWVSC">
     <GROUP id="{79FEC981-88BF-B79F-E71C-B1FD7B6FB011}" name="Source">
       <FILE id="WAyKJw" name="PluginProcessor.cpp" compile="1" resource="0"

@@ -19,9 +19,12 @@ DAWVSCAudioProcessor::DAWVSCAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
+    initialized(false)
 #endif
 {
+    initialized = true;
+    DBG("Initialized DAWVSC Plugin");
 }
 
 DAWVSCAudioProcessor::~DAWVSCAudioProcessor()
