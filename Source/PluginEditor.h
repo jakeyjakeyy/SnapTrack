@@ -29,5 +29,8 @@ private:
     // access the processor object that created it.
     DAWVSCAudioProcessor& audioProcessor;
 
+    juce::Label directoryPath;
+
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DAWVSCAudioProcessorEditor)
 };

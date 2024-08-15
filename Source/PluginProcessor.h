@@ -9,6 +9,13 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <thread>
+#include <atomic>
+#include <cstdio>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <array>
 
 //==============================================================================
 /**
@@ -53,9 +60,11 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-
+    const juce::String& getProjectPath() const { return projectPath; };
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DAWVSCAudioProcessor)
-    void executeGitCommand(const char* command, char* result);
+    void executeCommand(const char* command, char* result);
+    juce::String projectPath;
+    std::unique_ptr<juce::File> project;
 };

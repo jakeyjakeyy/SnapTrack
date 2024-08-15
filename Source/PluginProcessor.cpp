@@ -8,11 +8,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-#include <cstdio>
-#include <memory>
-#include <stdexcept>
-#include <string>
-#include <array>
+
 
 //==============================================================================
 DAWVSCAudioProcessor::DAWVSCAudioProcessor()
@@ -27,10 +23,12 @@ DAWVSCAudioProcessor::DAWVSCAudioProcessor()
                        )
 #endif
 {
-    DBG("Initialized DAWVSC Plugin");
     char result[1024];
-    executeGitCommand("git --version", result);
+    executeCommand("git --version", result);
     DBG("Git version: " << result);
+    executeCommand("cd", result);
+    projectPath = juce::String(result).trim();
+    DBG("Current directory: " << result);
 }
 
 DAWVSCAudioProcessor::~DAWVSCAudioProcessor()
@@ -192,7 +190,7 @@ void DAWVSCAudioProcessor::setStateInformation (const void* data, int sizeInByte
     // whose contents will have been created by the getStateInformation() call.
 }
 
-void DAWVSCAudioProcessor::executeGitCommand(const char* command, char* result)
+void DAWVSCAudioProcessor::executeCommand(const char* command, char* result)
 {
     std::array<char, 128> buffer;
     std::string resultString;
