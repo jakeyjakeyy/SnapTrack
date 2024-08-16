@@ -26,9 +26,6 @@ DAWVSCAudioProcessor::DAWVSCAudioProcessor()
     char result[1024];
     executeCommand("git --version", result);
     DBG("Git version: " << result);
-    executeCommand("cd", result);
-    projectPath = juce::String(result).trim();
-    DBG("Current directory: " << result);
 }
 
 DAWVSCAudioProcessor::~DAWVSCAudioProcessor()
@@ -182,12 +179,33 @@ void DAWVSCAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+
+    juce::XmlElement xml("DAWVSCAudioProcessorState");
+    if (projectPath != nullptr) {
+		xml.setAttribute("projectPath", projectPath->getFullPathName());
+	}
+
+    // Add any other metadata here
+
+    // Convert the XML to a string and then store it in the memory block
+    copyXmlToBinary(xml, destData);
 }
 
 void DAWVSCAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+
+    std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+
+    if (xmlState != nullptr)
+    {
+        if (xmlState->hasAttribute("projectPath"))
+        {
+            setProjectPath(xmlState->getStringAttribute("projectPath"));
+        }
+    }
+    // Restore any other parameters from the xmlState here
 }
 
 void DAWVSCAudioProcessor::executeCommand(const char* command, char* result)
@@ -202,6 +220,16 @@ void DAWVSCAudioProcessor::executeCommand(const char* command, char* result)
         resultString += buffer.data();
     }
     std::strncpy(result, resultString.c_str(), resultString.size() + 1);
+}
+
+void DAWVSCAudioProcessor::setProjectPath(const juce::String& path)
+{
+	projectPath = std::make_unique<juce::File>(path);
+}
+
+juce::String DAWVSCAudioProcessor::getProjectPath()
+{
+	return projectPath->getFullPathName();
 }
 
 //==============================================================================

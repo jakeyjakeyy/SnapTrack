@@ -17,10 +17,13 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor (DAWVSCAudioProcessor& p)
     // editor's size to whatever you need it to be.
     setSize (400, 300);
 
-    addAndMakeVisible(directoryPath);
-    directoryPath.setText("Project Directory: " + audioProcessor.getProjectPath(), juce::dontSendNotification);
-    directoryPath.setBounds(10, 10, getWidth() - 20, 20);
+    addAndMakeVisible(browseButton);
+    browseButton.setButtonText("Browse...");
+    browseButton.onClick = [this] { browseButtonClicked(); };
+    browseButton.setBounds(10, 40, getWidth() - 20, 20);
 
+    addAndMakeVisible(debugText);
+    debugText.setBounds(10, 70, getWidth() - 20, getHeight() - 80);
 }
 
 DAWVSCAudioProcessorEditor::~DAWVSCAudioProcessorEditor()
@@ -43,6 +46,23 @@ void DAWVSCAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
 
-    directoryPath.setBounds(10, 10, getWidth() - 20, 20);
+    browseButton.setBounds(10, 40, getWidth() - 20, 20);
 
+    debugText.setBounds(10, 70, getWidth() - 20, getHeight() - 80);
+
+}
+
+void DAWVSCAudioProcessorEditor::browseButtonClicked()
+{
+    chooser = std::make_unique<juce::FileChooser>("Select project directory", juce::File::getSpecialLocation(juce::File::userHomeDirectory), "*");
+
+    chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories,
+		[this](const juce::FileChooser& fc)
+		{
+			if (fc.getResult().exists())
+			{
+				audioProcessor.setProjectPath(fc.getResult().getFullPathName());
+                debugText.setText(audioProcessor.getProjectPath(), juce::dontSendNotification);
+			}
+		});
 }

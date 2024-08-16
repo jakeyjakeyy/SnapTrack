@@ -29,8 +29,13 @@ private:
     // access the processor object that created it.
     DAWVSCAudioProcessor& audioProcessor;
 
-    juce::Label directoryPath;
+    juce::TextEditor debugText;
 
+    std::unique_ptr<juce::FileChooser> chooser;
+
+    juce::TextButton browseButton;
+
+    void browseButtonClicked();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DAWVSCAudioProcessorEditor)
 };
