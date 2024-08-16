@@ -29,7 +29,7 @@ private:
     // access the processor object that created it.
     DAWVSCAudioProcessor& audioProcessor;
 
-    juce::TextEditor debugText;
+    juce::Label debugText;
 
     std::unique_ptr<juce::FileChooser> chooser;
 

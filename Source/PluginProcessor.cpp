@@ -180,6 +180,7 @@ void DAWVSCAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
 
+    DBG("getStateInformation() called");
     juce::XmlElement xml("DAWVSCAudioProcessorState");
     if (projectPath != nullptr) {
 		xml.setAttribute("projectPath", projectPath->getFullPathName());
@@ -195,7 +196,7 @@ void DAWVSCAudioProcessor::setStateInformation (const void* data, int sizeInByte
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
-
+    DBG("setStateInformation() called");
     std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
 
     if (xmlState != nullptr)
