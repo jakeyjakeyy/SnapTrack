@@ -25,9 +25,10 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor (DAWVSCAudioProcessor& p)
     addAndMakeVisible(debugText);
     debugText.setBounds(10, 70, getWidth() - 20, getHeight() - 80);
 
+    projectPath = audioProcessor.getProjectPath();
+    DBG("Project path: " << projectPath);
+    debugText.setText(projectPath, juce::dontSendNotification);
     DBG("Editor created");
-    //DBG("Project path: " << audioProcessor.getProjectPath());
-    //debugText.setText(audioProcessor.getProjectPath(), juce::dontSendNotification);
 }
 
 DAWVSCAudioProcessorEditor::~DAWVSCAudioProcessorEditor()

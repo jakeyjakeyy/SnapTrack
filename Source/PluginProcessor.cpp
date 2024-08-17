@@ -230,6 +230,9 @@ void DAWVSCAudioProcessor::setProjectPath(const juce::String& path)
 
 juce::String DAWVSCAudioProcessor::getProjectPath()
 {
+    if (projectPath == nullptr) {
+		return "";
+	}
 	return projectPath->getFullPathName();
 }
 
