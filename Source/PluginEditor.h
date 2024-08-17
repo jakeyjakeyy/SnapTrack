@@ -24,6 +24,8 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
+    void checkForGit(const juce::String& path);
+
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.

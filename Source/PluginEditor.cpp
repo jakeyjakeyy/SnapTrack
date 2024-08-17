@@ -28,6 +28,10 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor (DAWVSCAudioProcessor& p)
     projectPath = audioProcessor.getProjectPath();
     DBG("Project path: " << projectPath);
     debugText.setText(projectPath, juce::dontSendNotification);
+    if (projectPath.isNotEmpty())
+	{
+        checkForGit(projectPath);
+	}
     DBG("Editor created");
 }
 
@@ -70,4 +74,20 @@ void DAWVSCAudioProcessorEditor::browseButtonClicked()
                 debugText.setText(audioProcessor.getProjectPath(), juce::dontSendNotification);
 			}
 		});
+}
+
+void DAWVSCAudioProcessorEditor::checkForGit(const juce::String& path)
+{
+    juce::File projectDir(path);
+    juce::Array<juce::File> gitFolders;
+    projectDir.findChildFiles(gitFolders, juce::File::findDirectories, false, ".git");
+
+    if (gitFolders.isEmpty())
+    {
+        debugText.setText("No Git repository found at: " + path, juce::dontSendNotification);
+    }
+    else
+    {
+        debugText.setText("Git repository found at: " + path, juce::dontSendNotification);
+    }
 }

@@ -60,11 +60,12 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    void executeCommand(const char* command, char* result);
+
     void setProjectPath(const juce::String& path);
     juce::String getProjectPath();
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DAWVSCAudioProcessor)
-    void executeCommand(const char* command, char* result);
     std::unique_ptr<juce::File> projectPath;
 };
