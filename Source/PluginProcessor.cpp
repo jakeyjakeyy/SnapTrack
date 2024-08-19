@@ -23,6 +23,7 @@ DAWVSCAudioProcessor::DAWVSCAudioProcessor()
                        )
 #endif
 {
+
 }
 
 DAWVSCAudioProcessor::~DAWVSCAudioProcessor()
@@ -245,11 +246,16 @@ void DAWVSCAudioProcessor::checkForGit(const juce::String& path, juce::String& r
         resString = "Git repository not found, initializing git repository in " + path + "\n";
         result.append(resString, resString.length());
         executeCommand("git init", result);
-        #if defined(_WIN32) || defined(_WIN64)
-                executeCommand("echo Backup/ > .gitignore && echo Ableton Project Info/ >> .gitignore", result);
-        #else
-                executeCommand("sh -c 'echo Backup/ > .gitignore && echo Ableton Project Info/ >> .gitignore'", result);
-        #endif
+        if (os.toLowerCase().contains("windows") || os.toLowerCase().contains("mac")) {
+            resString = "Creating .gitignore for windows/mac\n";
+            result.append(resString, resString.length());
+            executeCommand("echo Backup/ > .gitignore && echo 'Ableton Project Info/' >> .gitignore", result);
+        }
+        else if (os.toLowerCase().contains("linux")) {
+            resString = "Creating .gitignore for linux\n";
+            result.append(resString, resString.length());
+            executeCommand("sh -c 'echo Backup/ > .gitignore && echo \"Ableton Project Info/\" >> .gitignore'", result);
+        }
         resString = "Git repository initialized, gitignore created.\n";
         result.append(resString, resString.length());
         checkForGit(path, result);
@@ -259,6 +265,12 @@ void DAWVSCAudioProcessor::checkForGit(const juce::String& path, juce::String& r
         resString = "gitFolders is not empty\n";
         result.append(resString, resString.length());
     }
+}
+
+juce::String DAWVSCAudioProcessor::getOS()
+{
+    os = juce::SystemStats::getOperatingSystemName();
+    return os;
 }
 
 //==============================================================================
