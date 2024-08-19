@@ -25,16 +25,18 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor (DAWVSCAudioProcessor& p)
     addAndMakeVisible(debugText);
     debugText.setBounds(10, 70, getWidth() - 20, getHeight() - 80);
 
+    // Check git installation
+    audioProcessor.executeCommand("git --version", result);
     projectPath = audioProcessor.getProjectPath();
+    result.append("Project path: " + projectPath + "\n", projectPath.length() + 15);
     DBG("Project path: " << projectPath);
-    debugText.setText(projectPath, juce::dontSendNotification);
+    debugText.setText(result, juce::dontSendNotification);
     if (projectPath.isNotEmpty())
 	{
-        char result[1024];
         audioProcessor.checkForGit(projectPath, result);
         debugText.setText(result, juce::dontSendNotification);
 	}
-    DBG("Editor created");
+    result.append("Editor created\n", 15);
 }
 
 DAWVSCAudioProcessorEditor::~DAWVSCAudioProcessorEditor()
@@ -72,8 +74,7 @@ void DAWVSCAudioProcessorEditor::browseButtonClicked()
 		{
 			if (fc.getResult().exists())
 			{
-				audioProcessor.setProjectPath(fc.getResult().getFullPathName());
-                char result[1024];
+                audioProcessor.setProjectPath(fc.getResult().getFullPathName());
                 audioProcessor.checkForGit(audioProcessor.getProjectPath(), result);
                 debugText.setText(result, juce::dontSendNotification);
 			}

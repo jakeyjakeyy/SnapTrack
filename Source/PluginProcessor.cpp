@@ -23,9 +23,6 @@ DAWVSCAudioProcessor::DAWVSCAudioProcessor()
                        )
 #endif
 {
-    char result[1024];
-    executeCommand("git --version", result);
-    DBG("Git version: " << result);
 }
 
 DAWVSCAudioProcessor::~DAWVSCAudioProcessor()
@@ -209,7 +206,7 @@ void DAWVSCAudioProcessor::setStateInformation (const void* data, int sizeInByte
     // Restore any other parameters from the xmlState here
 }
 
-void DAWVSCAudioProcessor::executeCommand(const char* command, char* result)
+void DAWVSCAudioProcessor::executeCommand(const char* command, juce::String& result)
 {
     std::array<char, 128> buffer;
     std::string resultString;
@@ -220,7 +217,7 @@ void DAWVSCAudioProcessor::executeCommand(const char* command, char* result)
     while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
         resultString += buffer.data();
     }
-    std::strncpy(result, resultString.c_str(), resultString.size() + 1);
+    result.append(resultString, resultString.length());
 }
 
 void DAWVSCAudioProcessor::setProjectPath(const juce::String& path)
@@ -236,26 +233,31 @@ juce::String DAWVSCAudioProcessor::getProjectPath()
 	return projectPath->getFullPathName();
 }
 
-void DAWVSCAudioProcessor::checkForGit(const juce::String& path, char* result)
+void DAWVSCAudioProcessor::checkForGit(const juce::String& path, juce::String& result)
 {
     juce::File projectDir(path);
     juce::Array<juce::File> gitFolders;
     projectDir.findChildFiles(gitFolders, juce::File::findDirectories, false, ".git");
+    juce::String resString = "";
 
     if (gitFolders.isEmpty())
     {
+        resString = "Git repository not found, initializing git repository in " + path + "\n";
+        result.append(resString, resString.length());
         executeCommand("git init", result);
         #if defined(_WIN32) || defined(_WIN64)
                 executeCommand("echo Backup/ > .gitignore && echo Ableton Project Info/ >> .gitignore", result);
         #else
                 executeCommand("sh -c 'echo Backup/ > .gitignore && echo Ableton Project Info/ >> .gitignore'", result);
         #endif
-        result = "Git repository initialized, gitignore created.";
+        resString = "Git repository initialized, gitignore created.\n";
+        result.append(resString, resString.length());
         checkForGit(path, result);
     }
     else
     {
-        result = "Git repository found";
+        resString = "gitFolders is not empty\n";
+        result.append(resString, resString.length());
     }
 }
 
