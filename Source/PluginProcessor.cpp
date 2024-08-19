@@ -249,14 +249,18 @@ void DAWVSCAudioProcessor::checkForGit(const juce::String& path, juce::String& r
         if (os.toLowerCase().contains("windows") || os.toLowerCase().contains("mac")) {
             resString = "Creating .gitignore for windows/mac\n";
             result.append(resString, resString.length());
-            executeCommand("echo Backup/ > .gitignore && echo 'Ableton Project Info/' >> .gitignore", result);
+            executeCommand("echo Backup/ > .gitignore && echo Ableton Project Info/ >> .gitignore", result);
         }
         else if (os.toLowerCase().contains("linux")) {
             resString = "Creating .gitignore for linux\n";
             result.append(resString, resString.length());
             executeCommand("sh -c 'echo Backup/ > .gitignore && echo \"Ableton Project Info/\" >> .gitignore'", result);
         }
-        resString = "Git repository initialized, gitignore created.\n";
+        executeCommand("git add ." , resString);
+        result.append(resString, resString.length());
+        executeCommand("git commit -m \"Initial commit\"", resString);
+        result.append(resString, resString.length());
+        resString = "Git repository initialized\n";
         result.append(resString, resString.length());
         checkForGit(path, result);
     }
@@ -273,6 +277,13 @@ juce::String DAWVSCAudioProcessor::getOS()
     return os;
 }
 
+juce::String DAWVSCAudioProcessor::getGitVersion()
+{
+	juce::String result;
+	executeCommand("git --version", result);
+    gitVersion = result;
+	return gitVersion;
+}
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()

@@ -15,32 +15,44 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor (DAWVSCAudioProcessor& p)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    setSize (400, 150);
 
     addAndMakeVisible(browseButton);
     browseButton.setButtonText("Browse...");
     browseButton.onClick = [this] { browseButtonClicked(); };
-    browseButton.setBounds(10, 40, getWidth() - 20, 20);
+    browseButton.setBounds(10, 10, getWidth() - 20, 20);
 
     addAndMakeVisible(debugText);
-    debugText.setBounds(10, 70, getWidth() - 20, getHeight() - 80);
-
+    debugText.setBounds(10, 40, getWidth() - 20, getHeight() - 40);
     // Fetch OS
     resString = "OS: " + audioProcessor.getOS() + "\n";
     result.append(resString, resString.length());
+
     // Check git installation
-    audioProcessor.executeCommand("git --version", result);
+    juce::String gitVersion = audioProcessor.getGitVersion();
+    if (gitVersion.isEmpty())
+	{
+		resString = "Git not installed\n";
+		result.append(resString, resString.length());
+	}
+	else
+	{
+		resString = "Git version: " + gitVersion + "\n";
+		result.append(resString, resString.length());
+	}
+
     // Get project path
     projectPath = audioProcessor.getProjectPath();
-    // Add to debug output
     resString = "Project path: " + projectPath + "\n";
     result.append(resString, resString.length());
+
     // Check for git repository in project path
     if (projectPath.isNotEmpty())
 	{
         audioProcessor.checkForGit(projectPath, result);
         debugText.setText(result, juce::dontSendNotification);
 	}
+
     resString = "Editor created\n";
     result.append(resString, resString.length());
     debugText.setText(result, juce::dontSendNotification);
@@ -58,7 +70,7 @@ void DAWVSCAudioProcessorEditor::paint (juce::Graphics& g)
 
     g.setColour (juce::Colours::white);
     g.setFont (juce::FontOptions (15.0f));
-    g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+    //g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void DAWVSCAudioProcessorEditor::resized()
