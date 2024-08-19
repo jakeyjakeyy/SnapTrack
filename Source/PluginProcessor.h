@@ -64,6 +64,8 @@ public:
 
     void setProjectPath(const juce::String& path);
     juce::String getProjectPath();
+
+    void checkForGit(const juce::String& path, char* result);
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DAWVSCAudioProcessor)

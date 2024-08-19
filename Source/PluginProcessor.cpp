@@ -236,6 +236,29 @@ juce::String DAWVSCAudioProcessor::getProjectPath()
 	return projectPath->getFullPathName();
 }
 
+void DAWVSCAudioProcessor::checkForGit(const juce::String& path, char* result)
+{
+    juce::File projectDir(path);
+    juce::Array<juce::File> gitFolders;
+    projectDir.findChildFiles(gitFolders, juce::File::findDirectories, false, ".git");
+
+    if (gitFolders.isEmpty())
+    {
+        executeCommand("git init", result);
+        #if defined(_WIN32) || defined(_WIN64)
+                executeCommand("echo Backup/ > .gitignore && echo Ableton Project Info/ >> .gitignore", result);
+        #else
+                executeCommand("sh -c 'echo Backup/ > .gitignore && echo Ableton Project Info/ >> .gitignore'", result);
+        #endif
+        result = "Git repository initialized, gitignore created.";
+        checkForGit(path, result);
+    }
+    else
+    {
+        result = "Git repository found";
+    }
+}
+
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
