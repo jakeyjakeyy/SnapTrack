@@ -36,6 +36,14 @@ private:
 
     juce::TextButton browseButton;
 
+    juce::TextButton goBackButton;
+
+    juce::TextButton branchButton;
+
+    juce::TextButton mergeButton;
+
+    juce::TextButton goForwardButton;
+
     juce::String projectPath;
 
     juce::String result;

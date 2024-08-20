@@ -17,13 +17,27 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor (DAWVSCAudioProcessor& p)
     // editor's size to whatever you need it to be.
     setSize (400, 150);
 
+    // Initialize buttons
     addAndMakeVisible(browseButton);
     browseButton.setButtonText("Browse...");
     browseButton.onClick = [this] { browseButtonClicked(); };
     browseButton.setBounds(10, 10, getWidth() - 20, 20);
 
+    addAndMakeVisible(goBackButton);
+    addAndMakeVisible(branchButton);
+    addAndMakeVisible(mergeButton);
+    addAndMakeVisible(goForwardButton);
+    goBackButton.setButtonText("Go back");
+    branchButton.setButtonText("Branch");
+    mergeButton.setButtonText("Merge");
+    goForwardButton.setButtonText("Redo");
+    goBackButton.setBounds(10, 40, 100, 20);
+    branchButton.setBounds(110, 40, 50, 20);
+    mergeButton.setBounds(160, 40, 50, 20);
+    goForwardButton.setBounds(220, 40, 100, 20);
+    
     addAndMakeVisible(debugText);
-    debugText.setBounds(10, 40, getWidth() - 20, getHeight() - 40);
+    debugText.setBounds(10, 60, getWidth() - 20, getHeight() - 60);
     // Fetch OS
     resString = "OS: " + audioProcessor.getOS() + "\n";
     result.append(resString, resString.length());
