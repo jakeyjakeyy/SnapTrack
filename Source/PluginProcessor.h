@@ -79,4 +79,5 @@ private:
     std::unique_ptr<juce::File> projectPath;
     juce::String os;
     juce::String gitVersion;
+    bool createdEditor = false; // We need to create the editor only once to prevent the bug where the terminal shows on relaunch
 };

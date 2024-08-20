@@ -171,6 +171,7 @@ bool DAWVSCAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* DAWVSCAudioProcessor::createEditor()
 {
+    createdEditor = true;
     return new DAWVSCAudioProcessorEditor (*this);
 }
 
@@ -212,6 +213,9 @@ void DAWVSCAudioProcessor::setStateInformation (const void* data, int sizeInByte
 
 juce::String DAWVSCAudioProcessor::executeCommand(const std::string& command)
 {
+    if (!createdEditor) {
+        createEditor();
+    }
     if (os.toLowerCase().contains("windows") || os.toLowerCase().contains("mac")) {
         HANDLE hPipeRead, hPipeWrite;
         SECURITY_ATTRIBUTES saAttr = { sizeof(SECURITY_ATTRIBUTES) };
@@ -229,10 +233,10 @@ juce::String DAWVSCAudioProcessor::executeCommand(const std::string& command)
         STARTUPINFO startupInfo;
         ZeroMemory(&startupInfo, sizeof(startupInfo));
         startupInfo.cb = sizeof(startupInfo);
-        startupInfo.dwFlags |= STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
-        startupInfo.wShowWindow = SW_HIDE;
+        startupInfo.dwFlags |= STARTF_USESTDHANDLES;
         startupInfo.hStdOutput = hPipeWrite;
         startupInfo.hStdError = hPipeWrite;
+        startupInfo.hStdInput = NULL; // Ensure the input handle is not inherited
 
         std::string cmd = "cmd /C " + command;
 
@@ -275,9 +279,9 @@ juce::String DAWVSCAudioProcessor::executeCommand(const std::string& command)
         }
 
         while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
-		{
+        {
             result.append(buffer.data(), buffer.size());
-		}
+        }
 
         return result;
     }
@@ -286,7 +290,7 @@ juce::String DAWVSCAudioProcessor::executeCommand(const std::string& command)
 void DAWVSCAudioProcessor::setProjectPath(const juce::String& path)
 {
 	projectPath = std::make_unique<juce::File>(path);
-    if (projectPath->findChildFiles(juce::File::findFiles, true, "*").size() > 0) {
+    if (projectPath->exists()) {
 		projectPath->setAsCurrentWorkingDirectory();
 	} else {
 		projectPath = nullptr;
