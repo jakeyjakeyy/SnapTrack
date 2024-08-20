@@ -60,12 +60,12 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    void executeCommand(const char* command, juce::String& result);
+    bool executeCommand(const std::string& command);
 
     void setProjectPath(const juce::String& path);
     juce::String getProjectPath();
 
-    void checkForGit(const juce::String& path, juce::String& result);
+    void checkForGit(const juce::String& path);
 
     juce::String getOS();
     juce::String getGitVersion();

@@ -8,6 +8,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include <Windows.h>
 
 
 //==============================================================================
@@ -207,19 +208,51 @@ void DAWVSCAudioProcessor::setStateInformation (const void* data, int sizeInByte
     // Restore any other parameters from the xmlState here
 }
 
-void DAWVSCAudioProcessor::executeCommand(const char* command, juce::String& result)
+bool DAWVSCAudioProcessor::executeCommand(const std::string& command)
 {
-    std::array<char, 128> buffer;
-    std::string resultString;
-    std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(command, "r"), _pclose);
-    if (!pipe) {
-        throw std::runtime_error("popen() failed!");
+    if (os.toLowerCase().contains("windows") || os.toLowerCase().contains("mac")) {
+        PROCESS_INFORMATION processInfo;
+        STARTUPINFO startupInfo;
+        ZeroMemory(&startupInfo, sizeof(startupInfo));
+        startupInfo.cb = sizeof(startupInfo);
+        startupInfo.dwFlags |= STARTF_USESHOWWINDOW;
+        startupInfo.wShowWindow = SW_HIDE;
+        ZeroMemory(&processInfo, sizeof(processInfo));
+
+        std::string cmd = "cmd /C " + command;
+
+        if (!CreateProcess(NULL, const_cast<char*>(cmd.c_str()), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &startupInfo, &processInfo))
+        {
+            return false;
+        }
+
+        WaitForSingleObject(processInfo.hProcess, INFINITE);
+
+        DWORD exitCode;
+        GetExitCodeProcess(processInfo.hProcess, &exitCode);
+
+        CloseHandle(processInfo.hProcess);
+        CloseHandle(processInfo.hThread);
+
+        return exitCode == 0;
     }
-    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-        resultString += buffer.data();
+    else {
+        std::array<char, 128> buffer;
+        std::string cmd = command + " 2>&1"; // Capture both stdout and stderr
+        std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(cmd.c_str(), "r"), _pclose);
+
+        if (!pipe)
+        {
+            throw std::runtime_error("popen() failed!");
+        }
+
+        while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+		{
+			DBG(buffer.data());
+		}
+
+        return true;
     }
-    DBG("Command: " + juce::String(command) + " Result: " + juce::String(resultString.c_str()));
-    result.append(resultString, resultString.length());
 }
 
 void DAWVSCAudioProcessor::setProjectPath(const juce::String& path)
@@ -240,12 +273,13 @@ juce::String DAWVSCAudioProcessor::getProjectPath()
 	return projectPath->getFullPathName();
 }
 
-void DAWVSCAudioProcessor::checkForGit(const juce::String& path, juce::String& result)
+void DAWVSCAudioProcessor::checkForGit(const juce::String& path)
 {
     juce::File projectDir(path);
     juce::Array<juce::File> gitFolders;
     projectDir.findChildFiles(gitFolders, juce::File::findDirectories, false, ".git");
     juce::String resString = "";
+    juce::String result = "";
 
     if (gitFolders.isEmpty())
     {
@@ -253,21 +287,21 @@ void DAWVSCAudioProcessor::checkForGit(const juce::String& path, juce::String& r
         resString = "Git repository not found, initializing git repository in " + path + "\n";
         result.append(resString, resString.length());
         DBG("Attempting initialization of git repository in " + path);
-        executeCommand("git init", result);
+        executeCommand("git init");
         if (os.toLowerCase().contains("windows") || os.toLowerCase().contains("mac")) {
             resString = "Creating .gitignore for windows/mac\n";
             result.append(resString, resString.length());
-            executeCommand("echo Backup/ > .gitignore && echo Ableton Project Info/ >> .gitignore", result);
+            executeCommand("echo Backup/ > .gitignore && echo Ableton Project Info/ >> .gitignore");
         }
         else if (os.toLowerCase().contains("linux")) {
             resString = "Creating .gitignore for linux\n";
             result.append(resString, resString.length());
-            executeCommand("sh -c 'echo Backup/ > .gitignore && echo \"Ableton Project Info/\" >> .gitignore'", result);
+            executeCommand("sh -c 'echo Backup/ > .gitignore && echo \"Ableton Project Info/\" >> .gitignore'");
         }
-        executeCommand("git add . && git commit -m \"Initial commit\"" , result);
+        executeCommand("git add . && git commit -m \"Initial commit\"");
         resString = "Git repository initialized\n";
         result.append(resString, resString.length());
-        checkForGit(path, result);
+        checkForGit(path);
     }
     else
     {
@@ -285,7 +319,7 @@ juce::String DAWVSCAudioProcessor::getOS()
 juce::String DAWVSCAudioProcessor::getGitVersion()
 {
 	juce::String result;
-	executeCommand("git --version", result);
+	executeCommand("git --version");
     gitVersion = result;
 	return gitVersion;
 }

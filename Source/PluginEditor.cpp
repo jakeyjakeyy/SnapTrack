@@ -64,8 +64,8 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor (DAWVSCAudioProcessor& p)
     // Check for git repository in project path
     if (projectPath.isNotEmpty())
 	{
-        audioProcessor.checkForGit(projectPath, result);
-        debugText.setText(result, juce::dontSendNotification);
+        audioProcessor.checkForGit(projectPath);
+        //debugText.setText(result, juce::dontSendNotification);
 	}
 
     resString = "Editor created\n";
@@ -109,8 +109,8 @@ void DAWVSCAudioProcessorEditor::browseButtonClicked()
 			if (fc.getResult().exists())
 			{
                 audioProcessor.setProjectPath(fc.getResult().getFullPathName());
-                audioProcessor.checkForGit(audioProcessor.getProjectPath(), result);
-                debugText.setText(result, juce::dontSendNotification);
+                audioProcessor.checkForGit(audioProcessor.getProjectPath());
+                //debugText.setText(result, juce::dontSendNotification);
 			}
 		});
 }
