@@ -20,7 +20,7 @@
 //==============================================================================
 /**
 */
-class DAWVSCAudioProcessor  : public juce::AudioProcessor
+class DAWVSCAudioProcessor  : public juce::AudioProcessor, public juce::Timer
 {
 public:
     //==============================================================================
@@ -60,7 +60,7 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    bool executeCommand(const std::string& command);
+    juce::String executeCommand(const std::string& command);
 
     void setProjectPath(const juce::String& path);
     juce::String getProjectPath();
@@ -69,6 +69,10 @@ public:
 
     juce::String getOS();
     juce::String getGitVersion();
+
+    void timerCallback() override;
+    void checkGitStatus();
+
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DAWVSCAudioProcessor)

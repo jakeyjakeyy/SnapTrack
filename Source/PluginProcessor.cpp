@@ -24,14 +24,16 @@ DAWVSCAudioProcessor::DAWVSCAudioProcessor()
                        )
 #endif
 {
-
+    startTimer(1000);
 }
 
 DAWVSCAudioProcessor::~DAWVSCAudioProcessor()
 {
+    stopTimer();
 }
 
 //==============================================================================
+
 const juce::String DAWVSCAudioProcessor::getName() const
 {
     return JucePlugin_Name;
@@ -208,38 +210,64 @@ void DAWVSCAudioProcessor::setStateInformation (const void* data, int sizeInByte
     // Restore any other parameters from the xmlState here
 }
 
-bool DAWVSCAudioProcessor::executeCommand(const std::string& command)
+juce::String DAWVSCAudioProcessor::executeCommand(const std::string& command)
 {
     if (os.toLowerCase().contains("windows") || os.toLowerCase().contains("mac")) {
+        HANDLE hPipeRead, hPipeWrite;
+        SECURITY_ATTRIBUTES saAttr = { sizeof(SECURITY_ATTRIBUTES) };
+        saAttr.bInheritHandle = TRUE; // Pipe handles are inherited by child process.
+        saAttr.lpSecurityDescriptor = NULL;
+
+        // Create a pipe to get results from child's stdout.
+        if (!CreatePipe(&hPipeRead, &hPipeWrite, &saAttr, 0))
+            return "Error creating pipe";
+
+        // Ensure the read handle to the pipe for STDOUT is not inherited.
+        SetHandleInformation(hPipeRead, HANDLE_FLAG_INHERIT, 0);
+
         PROCESS_INFORMATION processInfo;
         STARTUPINFO startupInfo;
         ZeroMemory(&startupInfo, sizeof(startupInfo));
         startupInfo.cb = sizeof(startupInfo);
-        startupInfo.dwFlags |= STARTF_USESHOWWINDOW;
+        startupInfo.dwFlags |= STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
         startupInfo.wShowWindow = SW_HIDE;
-        ZeroMemory(&processInfo, sizeof(processInfo));
+        startupInfo.hStdOutput = hPipeWrite;
+        startupInfo.hStdError = hPipeWrite;
 
         std::string cmd = "cmd /C " + command;
 
-        if (!CreateProcess(NULL, const_cast<char*>(cmd.c_str()), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &startupInfo, &processInfo))
+        if (!CreateProcess(NULL, const_cast<char*>(cmd.c_str()), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &startupInfo, &processInfo))
         {
-            return false;
+            CloseHandle(hPipeWrite);
+            CloseHandle(hPipeRead);
+            return "Error creating process";
         }
 
-        WaitForSingleObject(processInfo.hProcess, INFINITE);
+        // Close the write end of the pipe before reading from the read end of the pipe.
+        CloseHandle(hPipeWrite);
 
-        DWORD exitCode;
-        GetExitCodeProcess(processInfo.hProcess, &exitCode);
+        char buffer[128];
+        DWORD bytesRead;
+        std::string result;
 
+        // Read output from the child process.
+        while (ReadFile(hPipeRead, buffer, sizeof(buffer) - 1, &bytesRead, NULL) && bytesRead > 0)
+        {
+            buffer[bytesRead] = '\0';
+            result += buffer;
+        }
+
+        CloseHandle(hPipeRead);
         CloseHandle(processInfo.hProcess);
         CloseHandle(processInfo.hThread);
 
-        return exitCode == 0;
+        return result;
     }
     else {
         std::array<char, 128> buffer;
         std::string cmd = command + " 2>&1"; // Capture both stdout and stderr
         std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(cmd.c_str(), "r"), _pclose);
+        juce::String result;
 
         if (!pipe)
         {
@@ -248,10 +276,10 @@ bool DAWVSCAudioProcessor::executeCommand(const std::string& command)
 
         while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
 		{
-			DBG(buffer.data());
+            result.append(buffer.data(), buffer.size());
 		}
 
-        return true;
+        return result;
     }
 }
 
@@ -322,6 +350,23 @@ juce::String DAWVSCAudioProcessor::getGitVersion()
 	executeCommand("git --version");
     gitVersion = result;
 	return gitVersion;
+}
+
+void DAWVSCAudioProcessor::timerCallback()
+{
+    checkGitStatus();
+}
+
+void DAWVSCAudioProcessor::checkGitStatus()
+{
+    juce::String result;
+    result = executeCommand("git status --porcelain");
+
+    if (result != "")
+    {
+        DBG("Working tree has changed");
+        executeCommand("git add . && git commit -m \"Auto commit\"");
+    }
 }
 //==============================================================================
 // This creates new instances of the plugin..
