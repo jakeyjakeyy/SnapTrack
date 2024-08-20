@@ -31,6 +31,8 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor (DAWVSCAudioProcessor& p)
     branchButton.setButtonText("Branch");
     mergeButton.setButtonText("Merge");
     goForwardButton.setButtonText("Redo");
+    goBackButton.onClick = [this] { goBackButtonClicked(); };
+    goForwardButton.onClick = [this] { goForwardButtonClicked(); };
     goBackButton.setBounds(10, 40, 100, 20);
     branchButton.setBounds(110, 40, 50, 20);
     mergeButton.setBounds(160, 40, 50, 20);
@@ -115,3 +117,25 @@ void DAWVSCAudioProcessorEditor::browseButtonClicked()
 		});
 }
 
+void DAWVSCAudioProcessorEditor::goBackButtonClicked()
+{
+    juce::String res = "";
+	res = audioProcessor.executeCommand("git log --pretty=oneline");
+    juce::String hash = res.fromFirstOccurrenceOf("\n", false, true);
+    hash = hash.upToFirstOccurrenceOf(" ", false, true);
+    debugText.setText(hash, juce::dontSendNotification);
+    res = "git checkout " + hash;
+    audioProcessor.executeCommand(res.toStdString());
+}
+
+void DAWVSCAudioProcessorEditor::goForwardButtonClicked()
+{
+    juce::String res = "";
+    res = audioProcessor.executeCommand("git status");
+    if (res.contains("HEAD detached at"))
+    {
+        //juce::String hash = res.fromFirstOccurrenceOf("HEAD detached at ", false, true);
+        //hash = hash.upToFirstOccurrenceOf("\n", false, true);
+        audioProcessor.executeCommand("git checkout master");
+    }
+}

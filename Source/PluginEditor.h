@@ -51,6 +51,10 @@ private:
     juce::String resString;
 
     void browseButtonClicked();
+    
+    void goBackButtonClicked();
+
+    void goForwardButtonClicked();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DAWVSCAudioProcessorEditor)
 };
