@@ -37,7 +37,7 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor (DAWVSCAudioProcessor& p)
     goForwardButton.setBounds(220, 40, 100, 20);
     
     addAndMakeVisible(debugText);
-    debugText.setBounds(10, 60, getWidth() - 20, getHeight() - 60);
+    debugText.setBounds(10, 65, getWidth() - 20, getHeight() - 65);
     // Fetch OS
     resString = "OS: " + audioProcessor.getOS() + "\n";
     result.append(resString, resString.length());
@@ -57,6 +57,7 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor (DAWVSCAudioProcessor& p)
 
     // Get project path
     projectPath = audioProcessor.getProjectPath();
+    DBG("Project path: " + projectPath);
     resString = "Project path: " + projectPath + "\n";
     result.append(resString, resString.length());
 

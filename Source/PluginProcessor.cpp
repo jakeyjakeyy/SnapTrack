@@ -218,12 +218,18 @@ void DAWVSCAudioProcessor::executeCommand(const char* command, juce::String& res
     while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
         resultString += buffer.data();
     }
+    DBG("Command: " + juce::String(command) + " Result: " + juce::String(resultString.c_str()));
     result.append(resultString, resultString.length());
 }
 
 void DAWVSCAudioProcessor::setProjectPath(const juce::String& path)
 {
 	projectPath = std::make_unique<juce::File>(path);
+    if (projectPath->findChildFiles(juce::File::findFiles, true, "*").size() > 0) {
+		projectPath->setAsCurrentWorkingDirectory();
+	} else {
+		projectPath = nullptr;
+	}
 }
 
 juce::String DAWVSCAudioProcessor::getProjectPath()
@@ -243,8 +249,10 @@ void DAWVSCAudioProcessor::checkForGit(const juce::String& path, juce::String& r
 
     if (gitFolders.isEmpty())
     {
+        DBG("Git repository not found, initializing git repository in " + path);
         resString = "Git repository not found, initializing git repository in " + path + "\n";
         result.append(resString, resString.length());
+        DBG("Attempting initialization of git repository in " + path);
         executeCommand("git init", result);
         if (os.toLowerCase().contains("windows") || os.toLowerCase().contains("mac")) {
             resString = "Creating .gitignore for windows/mac\n";
@@ -256,10 +264,7 @@ void DAWVSCAudioProcessor::checkForGit(const juce::String& path, juce::String& r
             result.append(resString, resString.length());
             executeCommand("sh -c 'echo Backup/ > .gitignore && echo \"Ableton Project Info/\" >> .gitignore'", result);
         }
-        executeCommand("git add ." , resString);
-        result.append(resString, resString.length());
-        executeCommand("git commit -m \"Initial commit\"", resString);
-        result.append(resString, resString.length());
+        executeCommand("git add . && git commit -m \"Initial commit\"" , result);
         resString = "Git repository initialized\n";
         result.append(resString, resString.length());
         checkForGit(path, result);
