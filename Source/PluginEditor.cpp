@@ -16,17 +16,17 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     browseButton.onClick = [this] { browseButtonClicked(); };
     browseButton.setBounds(10, 10, getWidth() - 20, 20);
 
-    addAndMakeVisible(goBackButton);
+    addAndMakeVisible(checkoutButton);
     addAndMakeVisible(branchButton);
     addAndMakeVisible(mergeButton);
     addAndMakeVisible(goForwardButton);
-    goBackButton.setButtonText("Go back");
+    checkoutButton.setButtonText("Checkout");
     branchButton.setButtonText("Branch");
     mergeButton.setButtonText("Merge");
     goForwardButton.setButtonText("Redo");
-    goBackButton.onClick = [this] { goBackButtonClicked(); };
+    checkoutButton.onClick = [this] { checkoutButtonClicked(); };
     goForwardButton.onClick = [this] { goForwardButtonClicked(); };
-    goBackButton.setBounds(10, 40, 100, 20);
+    checkoutButton.setBounds(10, 40, 100, 20);
     branchButton.setBounds(110, 40, 50, 20);
     mergeButton.setBounds(160, 40, 50, 20);
     goForwardButton.setBounds(220, 40, 100, 20);
@@ -35,6 +35,10 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     addAndMakeVisible(commitListBox);
     commitListBox.setModel(&commitListBoxModel);
     commitListBox.setBounds(10, 70, getWidth() - 20, getHeight() - 80);
+    commitHistory = audioProcessor.getCommitHistory();
+    commitListBox.updateContent();
+    audioProcessor.setCommitHistoryChangedCallback([this] { refreshCommitListBox(); });
+
 
     // Fetch OS
     resString = "OS: " + audioProcessor.getOS() + "\n";
@@ -92,7 +96,7 @@ void DAWVSCAudioProcessorEditor::resized()
     // subcomponents in your editor..
 
     browseButton.setBounds(10, 10, getWidth() - 20, 20);
-    goBackButton.setBounds(10, 40, 100, 20);
+    checkoutButton.setBounds(10, 40, 100, 20);
     branchButton.setBounds(110, 40, 50, 20);
     mergeButton.setBounds(160, 40, 50, 20);
     goForwardButton.setBounds(220, 40, 100, 20);
@@ -114,7 +118,7 @@ void DAWVSCAudioProcessorEditor::browseButtonClicked()
         });
 }
 
-void DAWVSCAudioProcessorEditor::goBackButtonClicked()
+void DAWVSCAudioProcessorEditor::checkoutButtonClicked()
 {
     commitHistory = audioProcessor.getCommitHistory();
     commitListBox.updateContent();
@@ -129,4 +133,10 @@ void DAWVSCAudioProcessorEditor::goForwardButtonClicked()
         audioProcessor.executeCommand("git checkout master");
         audioProcessor.reloadWorkingTree();
     }
+}
+
+void DAWVSCAudioProcessorEditor::refreshCommitListBox()
+{
+    commitHistory = audioProcessor.getCommitHistory();
+    commitListBox.updateContent();
 }

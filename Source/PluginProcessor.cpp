@@ -370,6 +370,7 @@ void DAWVSCAudioProcessor::checkGitStatus()
     {
         DBG("Working tree has changed");
         executeCommand("git add . && git commit -m \"Auto commit\"");
+        commitHistoryChangedCallback();
     }
 }
 
@@ -396,6 +397,11 @@ juce::StringArray DAWVSCAudioProcessor::getCommitHistory()
 	juce::StringArray commits;
 	commits.addLines(result);
 	return commits;
+}
+
+void DAWVSCAudioProcessor::setCommitHistoryChangedCallback(CommitHistoryChangedCallback callback)
+{
+	commitHistoryChangedCallback = std::move(callback);
 }
 //==============================================================================
 // This creates new instances of the plugin..

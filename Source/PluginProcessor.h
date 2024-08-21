@@ -77,6 +77,9 @@ public:
 
     juce::StringArray getCommitHistory();
 
+    using CommitHistoryChangedCallback = std::function<void()>;
+    void setCommitHistoryChangedCallback(CommitHistoryChangedCallback callback);
+
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DAWVSCAudioProcessor)
@@ -84,4 +87,5 @@ private:
     juce::String os;
     juce::String gitVersion;
     bool createdEditor = false; // We need to create the editor only once to prevent the bug where the terminal shows on relaunch
+    CommitHistoryChangedCallback commitHistoryChangedCallback;
 };

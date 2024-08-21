@@ -45,7 +45,7 @@ private:
 
     DAWVSCAudioProcessor& audioProcessor;
     juce::TextButton browseButton;
-    juce::TextButton goBackButton;
+    juce::TextButton checkoutButton;
     juce::TextButton branchButton;
     juce::TextButton mergeButton;
     juce::TextButton goForwardButton;
@@ -56,8 +56,10 @@ private:
     juce::Label debugText;
 
     void browseButtonClicked();
-    void goBackButtonClicked();
+    void checkoutButtonClicked();
     void goForwardButtonClicked();
+
+    void refreshCommitListBox();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DAWVSCAudioProcessorEditor)
 };
