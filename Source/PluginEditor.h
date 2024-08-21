@@ -1,60 +1,63 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin editor.
-
-  ==============================================================================
-*/
-
 #pragma once
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 
 //==============================================================================
-/**
-*/
-class DAWVSCAudioProcessorEditor  : public juce::AudioProcessorEditor
+class DAWVSCAudioProcessorEditor : public juce::AudioProcessorEditor
 {
 public:
-    DAWVSCAudioProcessorEditor (DAWVSCAudioProcessor&);
+    DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor&);
     ~DAWVSCAudioProcessorEditor() override;
 
     //==============================================================================
-    void paint (juce::Graphics&) override;
+    void paint(juce::Graphics&) override;
     void resized() override;
 
-
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
-    DAWVSCAudioProcessor& audioProcessor;
+    juce::ListBox commitListBox;
+    juce::StringArray commitHistory;
+    class CommitListBoxModel : public juce::ListBoxModel
+    {
+    public:
+        CommitListBoxModel(juce::StringArray& commits) : commitHistory(commits) {}
 
+        int getNumRows() override
+        {
+            return commitHistory.size();
+        }
+
+        void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override
+        {
+            if (rowIsSelected)
+                g.fillAll(juce::Colours::lightblue);
+
+            g.setColour(juce::Colours::black);
+            g.setFont(height * 0.7f);
+            g.drawText(commitHistory[rowNumber], 5, 0, width, height, juce::Justification::centredLeft, true);
+        }
+
+    private:
+        juce::StringArray& commitHistory;
+    };
+
+    CommitListBoxModel commitListBoxModel;
+
+    DAWVSCAudioProcessor& audioProcessor;
+    juce::TextButton browseButton;
+    juce::TextButton goBackButton;
+    juce::TextButton branchButton;
+    juce::TextButton mergeButton;
+    juce::TextButton goForwardButton;
+    std::unique_ptr<juce::FileChooser> chooser;
+    juce::String projectPath;
+    juce::String resString;
+    juce::String result;
     juce::Label debugText;
 
-    std::unique_ptr<juce::FileChooser> chooser;
-
-    juce::TextButton browseButton;
-
-    juce::TextButton goBackButton;
-
-    juce::TextButton branchButton;
-
-    juce::TextButton mergeButton;
-
-    juce::TextButton goForwardButton;
-    
-    juce::String projectPath;
-
-    juce::String result;
-
-    juce::String resString;
-
     void browseButtonClicked();
-    
     void goBackButtonClicked();
-
     void goForwardButtonClicked();
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DAWVSCAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DAWVSCAudioProcessorEditor)
 };
