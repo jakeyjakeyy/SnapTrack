@@ -372,6 +372,22 @@ void DAWVSCAudioProcessor::checkGitStatus()
         executeCommand("git add . && git commit -m \"Auto commit\"");
     }
 }
+
+void DAWVSCAudioProcessor::reloadWorkingTree()
+{
+    if (projectPath != nullptr) 
+    {
+        juce::Array<juce::File> children;
+        projectPath->findChildFiles(children, juce::File::findFiles, false, "*");
+        for (auto child : children)
+		{
+			if (child.getFileExtension() == ".als" || child.getFileExtension() == ".flp") 
+			{
+                child.startAsProcess();
+			}
+		}
+    }
+}
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()

@@ -126,6 +126,7 @@ void DAWVSCAudioProcessorEditor::goBackButtonClicked()
     debugText.setText(hash, juce::dontSendNotification);
     res = "git checkout " + hash;
     audioProcessor.executeCommand(res.toStdString());
+    audioProcessor.reloadWorkingTree();
 }
 
 void DAWVSCAudioProcessorEditor::goForwardButtonClicked()
@@ -137,5 +138,6 @@ void DAWVSCAudioProcessorEditor::goForwardButtonClicked()
         //juce::String hash = res.fromFirstOccurrenceOf("HEAD detached at ", false, true);
         //hash = hash.upToFirstOccurrenceOf("\n", false, true);
         audioProcessor.executeCommand("git checkout master");
+        audioProcessor.reloadWorkingTree();
     }
 }
