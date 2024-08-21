@@ -388,6 +388,15 @@ void DAWVSCAudioProcessor::reloadWorkingTree()
 		}
     }
 }
+
+juce::StringArray DAWVSCAudioProcessor::getCommitHistory()
+{
+	juce::String result;
+	result = executeCommand("git log --pretty=format:\"%h %s\"");
+	juce::StringArray commits;
+	commits.addLines(result);
+	return commits;
+}
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()

@@ -43,7 +43,7 @@ private:
     juce::TextButton mergeButton;
 
     juce::TextButton goForwardButton;
-
+    
     juce::String projectPath;
 
     juce::String result;

@@ -120,13 +120,12 @@ void DAWVSCAudioProcessorEditor::browseButtonClicked()
 void DAWVSCAudioProcessorEditor::goBackButtonClicked()
 {
     juce::String res = "";
-	res = audioProcessor.executeCommand("git log --pretty=oneline");
-    juce::String hash = res.fromFirstOccurrenceOf("\n", false, true);
-    hash = hash.upToFirstOccurrenceOf(" ", false, true);
-    debugText.setText(hash, juce::dontSendNotification);
-    res = "git checkout " + hash;
-    audioProcessor.executeCommand(res.toStdString());
-    audioProcessor.reloadWorkingTree();
+    juce::StringArray commits = audioProcessor.getCommitHistory();
+    for (int i = 0; i < commits.size(); i++)
+	{
+        res.append(commits[i] + "\n", commits[i].length() + 1);
+	}
+    debugText.setText(res, juce::dontSendNotification);
 }
 
 void DAWVSCAudioProcessorEditor::goForwardButtonClicked()
