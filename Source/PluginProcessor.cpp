@@ -369,11 +369,17 @@ void DAWVSCAudioProcessor::checkGitStatus()
     if (result != "")
     {
         DBG("Working tree has changed");
-        if (result.contains("HEAD detached at"))
+        juce::String status = executeCommand("git status");
+        if (status.contains("HEAD detached"))
 		{
             // TODO: Implement branching logic for detached HEAD
             DBG("HEAD detached at commit, cannot save without making new branch");
-            //executeCommand("git checkout -b tempBranch");
+            juce::String hash = status.fromFirstOccurrenceOf("HEAD detached ", false, true);
+            hash = hash.fromFirstOccurrenceOf(" ", false, true);
+            hash = hash.upToFirstOccurrenceOf("\n", false, true);
+            DBG("Hash: " + hash);
+            juce::String cmd = "git checkout -b " + hash + "-branch";
+            executeCommand(cmd.toStdString());
         }
         else
         {
@@ -405,6 +411,7 @@ juce::StringArray DAWVSCAudioProcessor::getCommitHistory()
 	result = executeCommand("git log --pretty=format:\"%h %s\"");
 	juce::StringArray commits;
 	commits.addLines(result);
+    commits.remove(0);
 	return commits;
 }
 

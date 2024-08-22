@@ -23,7 +23,7 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     checkoutButton.setButtonText("Checkout");
     branchButton.setButtonText("Branch");
     mergeButton.setButtonText("Merge");
-    goForwardButton.setButtonText("Redo");
+    goForwardButton.setButtonText("Return");
     checkoutButton.onClick = [this] { checkoutButtonClicked(); };
     goForwardButton.onClick = [this] { goForwardButtonClicked(); };
     checkoutButton.setBounds(10, 40, 100, 20);
@@ -143,6 +143,7 @@ void DAWVSCAudioProcessorEditor::goForwardButtonClicked()
     res = audioProcessor.executeCommand("git status");
     if (res.contains("HEAD detached at"))
     {
+        // AT = just checking out a commit, we should return to master branch without worrying about any changes
         audioProcessor.executeCommand("git checkout master");
         audioProcessor.reloadWorkingTree();
     }
