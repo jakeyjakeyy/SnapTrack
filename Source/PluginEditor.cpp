@@ -114,14 +114,27 @@ void DAWVSCAudioProcessorEditor::browseButtonClicked()
             {
                 audioProcessor.setProjectPath(fc.getResult().getFullPathName());
                 audioProcessor.checkForGit(audioProcessor.getProjectPath());
+                commitHistory = audioProcessor.getCommitHistory();
+                commitListBox.updateContent();
             }
         });
 }
 
 void DAWVSCAudioProcessorEditor::checkoutButtonClicked()
 {
-    commitHistory = audioProcessor.getCommitHistory();
-    commitListBox.updateContent();
+    int row = commitListBox.getSelectedRow();
+    juce::StringArray commitHistory = audioProcessor.getCommitHistory();
+    if (row >= 0 && row < commitHistory.size())
+	{
+		juce::String commit = commitHistory[row];
+        DBG("Commit: " + commit);
+        juce::String hash = commit.upToFirstOccurrenceOf(" ", false, false);
+        DBG("Hash: " + hash);
+        juce::String cmd = "git checkout " + hash;
+        DBG("Command: " + cmd);
+		audioProcessor.executeCommand(cmd.toStdString());
+		audioProcessor.reloadWorkingTree();
+	}
 }
 
 void DAWVSCAudioProcessorEditor::goForwardButtonClicked()

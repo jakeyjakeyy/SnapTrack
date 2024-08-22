@@ -369,8 +369,17 @@ void DAWVSCAudioProcessor::checkGitStatus()
     if (result != "")
     {
         DBG("Working tree has changed");
-        executeCommand("git add . && git commit -m \"Auto commit\"");
-        commitHistoryChangedCallback();
+        if (result.contains("HEAD detached at"))
+		{
+            // TODO: Implement branching logic for detached HEAD
+            DBG("HEAD detached at commit, cannot save without making new branch");
+            //executeCommand("git checkout -b tempBranch");
+        }
+        else
+        {
+            executeCommand("git add . && git commit -m \"Auto commit\"");
+            commitHistoryChangedCallback();
+        }
     }
 }
 
