@@ -12,24 +12,35 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
 
     // Initialize buttons
     addAndMakeVisible(browseButton);
-    browseButton.setButtonText("Browse...");
-    browseButton.onClick = [this] { browseButtonClicked(); };
-    browseButton.setBounds(10, 10, getWidth() - 20, 20);
-
     addAndMakeVisible(checkoutButton);
     addAndMakeVisible(branchButton);
+    addAndMakeVisible(deleteBranchButton);
     addAndMakeVisible(mergeButton);
     addAndMakeVisible(goForwardButton);
+
+    // set button text
+    browseButton.setButtonText("Browse...");
     checkoutButton.setButtonText("Checkout");
-    branchButton.setButtonText("Branch");
+    branchButton.setButtonText("Create Branch");
+    deleteBranchButton.setButtonText("Delete branch");
     mergeButton.setButtonText("Merge");
     goForwardButton.setButtonText("Return");
+
+    // on click events
+    browseButton.onClick = [this] { browseButtonClicked(); };
     checkoutButton.onClick = [this] { checkoutButtonClicked(); };
     goForwardButton.onClick = [this] { goForwardButtonClicked(); };
+    branchButton.onClick = [this] { branchButtonClicked(); };
+    deleteBranchButton.onClick = [this] { deleteBranchButtonClicked(); };
+    mergeButton.onClick = [this] { mergeButtonClicked(); };
+
+    // set button bounds
+    browseButton.setBounds(10, 10, getWidth() - 20, 20);
     checkoutButton.setBounds(10, 40, 100, 20);
-    branchButton.setBounds(110, 40, 50, 20);
-    mergeButton.setBounds(160, 40, 50, 20);
-    goForwardButton.setBounds(220, 40, 100, 20);
+    branchButton.setBounds(110, 40, 60, 20);
+    deleteBranchButton.setBounds(170, 40, 60, 20);
+    mergeButton.setBounds(230, 40, 60, 20);
+    goForwardButton.setBounds(290, 40, 100, 20);
 
     // Initialize ListBox
     addAndMakeVisible(commitListBox);
@@ -38,7 +49,6 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     commitHistory = audioProcessor.getCommitHistory();
     commitListBox.updateContent();
     audioProcessor.setCommitHistoryChangedCallback([this] { refreshCommitListBox(); });
-
 
     // Fetch OS
     resString = "OS: " + audioProcessor.getOS() + "\n";
@@ -127,13 +137,9 @@ void DAWVSCAudioProcessorEditor::checkoutButtonClicked()
     if (row >= 0 && row < commitHistory.size())
 	{
 		juce::String commit = commitHistory[row];
-        DBG("Commit: " + commit);
         juce::String hash = commit.upToFirstOccurrenceOf(" ", false, false);
-        DBG("Hash: " + hash);
         juce::String cmd = "git checkout " + hash;
-        DBG("Command: " + cmd);
-		audioProcessor.executeCommand(cmd.toStdString());
-		audioProcessor.reloadWorkingTree();
+		executeAndRefresh(cmd);
 	}
 }
 
@@ -144,13 +150,73 @@ void DAWVSCAudioProcessorEditor::goForwardButtonClicked()
     if (res.contains("HEAD detached at"))
     {
         // AT = just checking out a commit, we should return to master branch without worrying about any changes
-        audioProcessor.executeCommand("git checkout master");
-        audioProcessor.reloadWorkingTree();
+        executeAndRefresh("git checkout master");
     }
+}
+
+void DAWVSCAudioProcessorEditor::branchButtonClicked()
+{
+    juce::String currentBranch = audioProcessor.getCurrentBranch();
+    if (currentBranch.contains("master"))
+    {
+        juce::String branchName = "branchName";
+        juce::String cmd = "git checkout -b " + branchName;
+        executeAndRefresh(cmd);
+    }
+    else
+    {
+        DBG("Already on a branch");
+        // TODO: Add multiple branch support
+    }
+}
+
+void DAWVSCAudioProcessorEditor::deleteBranchButtonClicked()
+{
+    juce::String currentBranch = audioProcessor.getCurrentBranch();
+    if (currentBranch.contains("master"))
+    {
+        DBG("Cannot delete master branch");
+    }
+    else if (currentBranch.contains("HEAD detached at"))
+    {
+        DBG("Cannot delete detached HEAD");
+        DAWVSCAudioProcessorEditor::goForwardButtonClicked();
+    }
+    else
+    {
+        juce::String cmd = "git checkout master && git branch -D " + currentBranch;
+        executeAndRefresh(cmd);
+    }
+}
+
+void DAWVSCAudioProcessorEditor::mergeButtonClicked()
+{
+    juce::String currentBranch = audioProcessor.getCurrentBranch();
+    if (currentBranch == "")
+    {
+        DBG("Error: Likely in detached HEAD state, press 'Return' to go back to master branch");
+    }
+    else if (currentBranch.contains("master"))
+	{
+		DBG("Already on master branch");
+	}
+	else
+	{
+		executeAndRefresh("git checkout master && git merge " + currentBranch);
+        juce::String cmd = "git branch -D " + currentBranch;
+        audioProcessor.executeCommand(cmd.toStdString());
+	}
 }
 
 void DAWVSCAudioProcessorEditor::refreshCommitListBox()
 {
     commitHistory = audioProcessor.getCommitHistory();
     commitListBox.updateContent();
+}
+
+void DAWVSCAudioProcessorEditor::executeAndRefresh(juce::String command)
+{
+	audioProcessor.executeCommand(command.toStdString());
+	audioProcessor.reloadWorkingTree();
+	refreshCommitListBox();
 }

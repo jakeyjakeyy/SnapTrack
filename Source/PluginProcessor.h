@@ -79,6 +79,7 @@ public:
 
     using CommitHistoryChangedCallback = std::function<void()>;
     void setCommitHistoryChangedCallback(CommitHistoryChangedCallback callback);
+    juce::String getCurrentBranch();
 
 private:
     //==============================================================================

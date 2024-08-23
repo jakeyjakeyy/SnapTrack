@@ -372,12 +372,9 @@ void DAWVSCAudioProcessor::checkGitStatus()
         juce::String status = executeCommand("git status");
         if (status.contains("HEAD detached"))
 		{
-            // TODO: Implement branching logic for detached HEAD
-            DBG("HEAD detached at commit, cannot save without making new branch");
             juce::String hash = status.fromFirstOccurrenceOf("HEAD detached ", false, true);
             hash = hash.fromFirstOccurrenceOf(" ", false, true);
             hash = hash.upToFirstOccurrenceOf("\n", false, true);
-            DBG("Hash: " + hash);
             juce::String cmd = "git checkout -b " + hash + "-branch";
             executeCommand(cmd.toStdString());
         }
@@ -424,4 +421,11 @@ void DAWVSCAudioProcessor::setCommitHistoryChangedCallback(CommitHistoryChangedC
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new DAWVSCAudioProcessor();
+}
+
+juce::String DAWVSCAudioProcessor::getCurrentBranch()
+{
+	juce::String result;
+	result = executeCommand("git branch --show-current");
+	return result;
 }

@@ -47,6 +47,7 @@ private:
     juce::TextButton browseButton;
     juce::TextButton checkoutButton;
     juce::TextButton branchButton;
+    juce::TextButton deleteBranchButton;
     juce::TextButton mergeButton;
     juce::TextButton goForwardButton;
     std::unique_ptr<juce::FileChooser> chooser;
@@ -58,6 +59,11 @@ private:
     void browseButtonClicked();
     void checkoutButtonClicked();
     void goForwardButtonClicked();
+    void branchButtonClicked();
+    void deleteBranchButtonClicked();
+    void mergeButtonClicked();
+
+    void executeAndRefresh(juce::String command);
 
     void refreshCommitListBox();
 
