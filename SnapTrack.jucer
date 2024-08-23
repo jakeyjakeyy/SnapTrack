@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="M2pnh6" name="SnapTrack" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginVST3Category="Tools"
-              companyName="Jake Richards" companyWebsite="https://github.com/jakeyjakeyy/dawvsc">
+              companyName="Jake Richards" companyWebsite="https://github.com/jakeyjakeyy/snaptrack">
   <MAINGROUP id="e3OOF9" name="SnapTrack">
     <GROUP id="{79FEC981-88BF-B79F-E71C-B1FD7B6FB011}" name="Source">
       <FILE id="WAyKJw" name="PluginProcessor.cpp" compile="1" resource="0"
