@@ -17,6 +17,7 @@ public:
 private:
     juce::ListBox commitListBox;
     juce::StringArray commitHistory;
+    juce::StringArray commitHashes;
     class CommitListBoxModel : public juce::ListBoxModel
     {
     public:

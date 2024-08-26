@@ -405,10 +405,13 @@ void DAWVSCAudioProcessor::reloadWorkingTree()
 juce::StringArray DAWVSCAudioProcessor::getCommitHistory()
 {
 	juce::String result;
-	result = executeCommand("git log --pretty=format:\"%h %s\"");
+	result = executeCommand("git log --pretty=format:\"%h %s %ar\"");
 	juce::StringArray commits;
 	commits.addLines(result);
-    commits.remove(0);
+    // Remove the first commit, which is the most recent commit
+    // Removing this line cleans up the commit history list, but looks confusing if a user
+    // expects the most recent commit to be at the top of the list
+    // commits.remove(0);
 	return commits;
 }
 

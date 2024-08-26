@@ -46,8 +46,9 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     addAndMakeVisible(commitListBox);
     commitListBox.setModel(&commitListBoxModel);
     commitListBox.setBounds(10, 70, getWidth() - 20, getHeight() - 80);
-    commitHistory = audioProcessor.getCommitHistory();
-    commitListBox.updateContent();
+    refreshCommitListBox();
+    
+    // Initialize callback for commit history changes
     audioProcessor.setCommitHistoryChangedCallback([this] { refreshCommitListBox(); });
 
     // Fetch OS
@@ -124,8 +125,7 @@ void DAWVSCAudioProcessorEditor::browseButtonClicked()
             {
                 audioProcessor.setProjectPath(fc.getResult().getFullPathName());
                 audioProcessor.checkForGit(audioProcessor.getProjectPath());
-                commitHistory = audioProcessor.getCommitHistory();
-                commitListBox.updateContent();
+                refreshCommitListBox();
             }
         });
 }
@@ -136,8 +136,7 @@ void DAWVSCAudioProcessorEditor::checkoutButtonClicked()
     juce::StringArray commitHistory = audioProcessor.getCommitHistory();
     if (row >= 0 && row < commitHistory.size())
 	{
-		juce::String commit = commitHistory[row];
-        juce::String hash = commit.upToFirstOccurrenceOf(" ", false, false);
+		juce::String hash = commitHashes[row];
         juce::String cmd = "git checkout " + hash;
 		executeAndRefresh(cmd);
 	}
@@ -210,8 +209,17 @@ void DAWVSCAudioProcessorEditor::mergeButtonClicked()
 
 void DAWVSCAudioProcessorEditor::refreshCommitListBox()
 {
-    commitHistory = audioProcessor.getCommitHistory();
+    // separate the hash from the rest of the commit message
+    commitHashes.clear();
+    commitHistory.clear();
+    juce::StringArray commitHistoryTmp = audioProcessor.getCommitHistory();
+    for (int i = 0; i < commitHistoryTmp.size(); i++)
+	{
+		commitHashes.add(commitHistoryTmp[i].upToFirstOccurrenceOf(" ", false, false));
+        commitHistory.add(commitHistoryTmp[i].fromFirstOccurrenceOf(" ", false, false));
+	}
     commitListBox.updateContent();
+    commitListBox.selectRow(0);
 }
 
 void DAWVSCAudioProcessorEditor::executeAndRefresh(juce::String command)
