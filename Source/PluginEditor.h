@@ -20,26 +20,26 @@ private:
     juce::StringArray commitHashes;
     class CommitListBoxModel : public juce::ListBoxModel
     {
-    public:
-        CommitListBoxModel(juce::StringArray& commits) : commitHistory(commits) {}
+        public:
+            CommitListBoxModel(juce::StringArray& commits) : commitHistory(commits) {}
 
-        int getNumRows() override
-        {
-            return commitHistory.size();
-        }
+            int getNumRows() override
+            {
+                return commitHistory.size();
+            }
 
-        void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override
-        {
-            if (rowIsSelected)
-                g.fillAll(juce::Colours::lightblue);
+            void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override
+            {
+                if (rowIsSelected)
+                    g.fillAll(juce::Colours::lightblue);
 
-            g.setColour(juce::Colours::black);
-            g.setFont(height * 0.7f);
-            g.drawText(commitHistory[rowNumber], 5, 0, width, height, juce::Justification::centredLeft, true);
-        }
+                g.setColour(juce::Colours::black);
+                g.setFont(height * 0.7f);
+                g.drawText(commitHistory[rowNumber], 5, 0, width, height, juce::Justification::centredLeft, true);
+            }
 
-    private:
-        juce::StringArray& commitHistory;
+        private:
+            juce::StringArray& commitHistory;
     };
 
     CommitListBoxModel commitListBoxModel;

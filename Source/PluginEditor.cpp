@@ -198,7 +198,7 @@ void DAWVSCAudioProcessorEditor::branchButtonClicked()
     alertWindow->addButton("Create", 1);
     alertWindow->addButton("Cancel", 0);
     alertWindow->enterModalState(true, juce::ModalCallbackFunction::create([this, alertWindow = alertWindow.get()](int result) mutable
-        {
+    {
         if (result != 0)
         {
             juce::String branchName = alertWindow->getTextEditorContents("branchName");
@@ -206,6 +206,7 @@ void DAWVSCAudioProcessorEditor::branchButtonClicked()
             juce::String cmd = "git checkout -b " + branchName;
             executeAndRefresh(cmd);
         }
+        this->alertWindow.reset();
     }));
 
     this->alertWindow = std::move(alertWindow);
