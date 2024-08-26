@@ -159,7 +159,7 @@ void DAWVSCAudioProcessorEditor::browseButtonClicked()
                 {
                     juce::String branch = branches[result - 1];
                     if (branch.contains("*")) return; // Do not checkout the current branch
-                    juce::String cmd = "git checkout " + branches[result - 1];
+                    juce::String cmd = "git checkout " + branch;
                     executeAndRefresh(cmd);
                 }
             }
@@ -262,7 +262,7 @@ void DAWVSCAudioProcessorEditor::refreshCommitListBox()
 
 void DAWVSCAudioProcessorEditor::executeAndRefresh(juce::String command)
 {
+    // Execute command and refresh the DAW
 	audioProcessor.executeCommand(command.toStdString());
 	audioProcessor.reloadWorkingTree();
-	refreshCommitListBox();
 }
