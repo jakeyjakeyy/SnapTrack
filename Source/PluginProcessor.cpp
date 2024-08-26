@@ -432,3 +432,12 @@ juce::String DAWVSCAudioProcessor::getCurrentBranch()
 	result = executeCommand("git branch --show-current");
 	return result;
 }
+
+juce::StringArray DAWVSCAudioProcessor::getBranches()
+{
+    juce::String result;
+	result = executeCommand("git branch");
+	juce::StringArray branches;
+	branches.addLines(result);
+	return branches;
+}

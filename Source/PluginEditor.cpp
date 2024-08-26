@@ -10,6 +10,18 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     // editor's size to whatever you need it to be.
     setSize(400, 300);
 
+    // Get project path
+    projectPath = audioProcessor.getProjectPath();
+    DBG("Project path: " + projectPath);
+    resString = "Project path: " + projectPath + "\n";
+    result.append(resString, resString.length());
+
+    // Check for git repository in project path
+    if (projectPath.isNotEmpty())
+    {
+        audioProcessor.checkForGit(projectPath);
+    }
+
     // Initialize buttons
     addAndMakeVisible(browseButton);
     addAndMakeVisible(checkoutButton);
@@ -19,7 +31,14 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     addAndMakeVisible(goForwardButton);
 
     // set button text
-    browseButton.setButtonText("Browse...");
+    if (projectPath.isNotEmpty())
+	{
+		browseButton.setButtonText("Branches");
+	}
+	else
+	{
+		browseButton.setButtonText("Browse...");
+	}
     checkoutButton.setButtonText("Checkout");
     branchButton.setButtonText("Create Branch");
     deleteBranchButton.setButtonText("Delete branch");
@@ -67,17 +86,7 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
         result.append(resString, resString.length());
     }
 
-    // Get project path
-    projectPath = audioProcessor.getProjectPath();
-    DBG("Project path: " + projectPath);
-    resString = "Project path: " + projectPath + "\n";
-    result.append(resString, resString.length());
 
-    // Check for git repository in project path
-    if (projectPath.isNotEmpty())
-    {
-        audioProcessor.checkForGit(projectPath);
-    }
 
     resString = "Editor created\n";
     result.append(resString, resString.length());
@@ -115,18 +124,48 @@ void DAWVSCAudioProcessorEditor::resized()
 
 void DAWVSCAudioProcessorEditor::browseButtonClicked()
 {
-    chooser = std::make_unique<juce::FileChooser>("Select project directory", juce::File::getSpecialLocation(juce::File::userHomeDirectory), "*");
+    if (projectPath.isEmpty())
+	{
+        // Selecting a project directory
+        chooser = std::make_unique<juce::FileChooser>("Select project directory", juce::File::getSpecialLocation(juce::File::userHomeDirectory), "*");
 
-    chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories,
-        [this](const juce::FileChooser& fc)
-        {
-            if (fc.getResult().exists())
+        chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories,
+            [this](const juce::FileChooser& fc)
             {
-                audioProcessor.setProjectPath(fc.getResult().getFullPathName());
-                audioProcessor.checkForGit(audioProcessor.getProjectPath());
-                refreshCommitListBox();
+                if (fc.getResult().exists())
+                {
+                    audioProcessor.setProjectPath(fc.getResult().getFullPathName());
+                    audioProcessor.checkForGit(audioProcessor.getProjectPath());
+                    refreshCommitListBox();
+                    browseButton.setButtonText("Branches");
+                }
+            });
+	}
+	else
+	{
+        // Selecting a branch
+        juce::StringArray branches = audioProcessor.getBranches();
+		juce::PopupMenu m;
+		for (int i = 0; i < branches.size(); i++)
+		{
+            if (branches[i].isEmpty()) continue;
+			m.addItem(i + 1, branches[i]);
+		}
+        m.showMenuAsync(
+            juce::PopupMenu::Options().withTargetComponent(&browseButton),
+            [this, branches](int result)
+            {
+                if (result > 0) // Check if a valid menu item is selected
+                {
+                    juce::String branch = branches[result - 1];
+                    if (branch.contains("*")) return; // Do not checkout the current branch
+                    juce::String cmd = "git checkout " + branches[result - 1];
+                    executeAndRefresh(cmd);
+                }
             }
-        });
+        );
+	}
+
 }
 
 void DAWVSCAudioProcessorEditor::checkoutButtonClicked()
