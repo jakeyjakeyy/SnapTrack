@@ -1,5 +1,5 @@
-#include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "PluginProcessor.h"
 
 //==============================================================================
 
@@ -193,18 +193,23 @@ void DAWVSCAudioProcessorEditor::goForwardButtonClicked()
 
 void DAWVSCAudioProcessorEditor::branchButtonClicked()
 {
-    juce::String currentBranch = audioProcessor.getCurrentBranch();
-    if (currentBranch.contains("master"))
-    {
-        juce::String branchName = "branchName";
-        juce::String cmd = "git checkout -b " + branchName;
-        executeAndRefresh(cmd);
-    }
-    else
-    {
-        DBG("Already on a branch");
-        // TODO: Add multiple branch support
-    }
+    auto alertWindow = std::make_unique<juce::AlertWindow>("Create branch", "Enter branch name", juce::AlertWindow::NoIcon);
+    alertWindow->addTextEditor("branchName", "", "Branch name:");
+    alertWindow->addButton("Create", 1);
+    alertWindow->addButton("Cancel", 0);
+    alertWindow->enterModalState(true, juce::ModalCallbackFunction::create([this, alertWindow = alertWindow.get()](int result) mutable
+        {
+        if (result != 0)
+        {
+            juce::String branchName = alertWindow->getTextEditorContents("branchName");
+            branchName = branchName.replaceCharacter(' ', '-');
+            juce::String cmd = "git checkout -b " + branchName;
+            executeAndRefresh(cmd);
+        }
+    }));
+
+    this->alertWindow = std::move(alertWindow);
+
 }
 
 void DAWVSCAudioProcessorEditor::deleteBranchButtonClicked()
