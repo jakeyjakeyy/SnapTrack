@@ -286,7 +286,8 @@ void DAWVSCAudioProcessorEditor::commitButtonClicked()
 			juce::String commitMessage = alertWindow->getTextEditorContents("commitMessage");
             if (commitMessage.isEmpty()) commitMessage = "No message attached";
 			juce::String cmd = "git add . && git commit -m \"" + commitMessage + "\"";
-			executeAndRefresh(cmd);
+			audioProcessor.executeCommand(cmd.toStdString());
+            refreshCommitListBox();
 		}
 		this->alertWindow.reset();
 	}));
