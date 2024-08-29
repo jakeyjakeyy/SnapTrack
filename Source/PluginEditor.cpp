@@ -8,6 +8,34 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     commitListBoxModel(commitHistory),
     branchListBoxModel(branchList, [this](int row) { onBranchListItemClicked(row); }) // Pass the callback here
 {
+
+    // Colors
+    textColor = juce::Colour(6, 6, 5);
+    backgroundColor = juce::Colour(204, 213, 174);
+    secondaryBackgroundColor = juce::Colour(233, 237, 201);
+    primaryColor = juce::Colour(254, 250, 224);
+    secondaryColor = juce::Colour(250, 237, 205);
+    accentColor = juce::Colour(212, 163, 115);
+
+    browseButton.setColour(juce::TextButton::buttonColourId, primaryColor);
+    browseButton.setColour(juce::TextButton::textColourOffId, textColor);
+    commitListBox.setColour(juce::ListBox::backgroundColourId, secondaryBackgroundColor);
+    commitListBox.setColour(juce::ListBox::textColourId, textColor);
+    branchListBox.setColour(juce::ListBox::backgroundColourId, secondaryBackgroundColor);
+    branchListBox.setColour(juce::ListBox::textColourId, textColor);
+    commitButton.setColour(juce::TextButton::buttonColourId, primaryColor);
+    branchButton.setColour(juce::TextButton::buttonColourId, primaryColor);
+    checkoutButton.setColour(juce::TextButton::buttonColourId, secondaryColor);
+    goForwardButton.setColour(juce::TextButton::buttonColourId, secondaryColor);
+    mergeButton.setColour(juce::TextButton::buttonColourId, secondaryColor);
+    deleteBranchButton.setColour(juce::TextButton::buttonColourId, secondaryColor);
+    branchButton.setColour(juce::TextButton::textColourOffId, textColor);
+    getLookAndFeel().setColour(juce::TextButton::textColourOffId, textColor);
+    
+    // Alert window components
+    
+
+
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setSize(400, 300);
@@ -85,8 +113,6 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
         result.append(resString, resString.length());
     }
 
-
-
     resString = "Editor created\n";
     result.append(resString, resString.length());
     debugText.setText(result, juce::dontSendNotification);
@@ -101,11 +127,7 @@ DAWVSCAudioProcessorEditor::~DAWVSCAudioProcessorEditor()
 void DAWVSCAudioProcessorEditor::paint(juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
-
-    g.setColour(juce::Colours::white);
-    g.setFont(juce::FontOptions(15.0f));
-    //g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+    g.fillAll(backgroundColor);
 }
 
 void DAWVSCAudioProcessorEditor::resized()

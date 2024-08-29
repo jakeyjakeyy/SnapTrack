@@ -31,9 +31,9 @@ private:
             void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override
             {
                 if (rowIsSelected)
-                    g.fillAll(juce::Colours::lightblue);
+                    g.fillAll(juce::Colour(212, 163, 115));
 
-                g.setColour(juce::Colours::black);
+                g.setColour(juce::Colour(6, 6, 5));
                 g.setFont(height * 0.5f);
                 g.drawText(commitHistory[rowNumber], 5, 0, width, height, juce::Justification::centredLeft, true);
             }
@@ -60,9 +60,9 @@ private:
         void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override
         {
             if (rowIsSelected)
-                g.fillAll(juce::Colours::lightblue);
+                g.fillAll(juce::Colour(212, 163, 115));
 
-            g.setColour(juce::Colours::black);
+            g.setColour(juce::Colour(6, 6, 5));
             g.setFont(height * 0.5f);
             g.drawText(branchList[rowNumber], 5, 0, width, height, juce::Justification::centredLeft, true);
         }
@@ -116,6 +116,13 @@ private:
     std::unique_ptr<juce::AlertWindow> alertWindow;
 
     void onBranchListItemClicked(int row);
+
+    juce::Colour textColor;
+    juce::Colour backgroundColor;
+    juce::Colour secondaryBackgroundColor;
+    juce::Colour primaryColor;
+    juce::Colour secondaryColor;
+    juce::Colour accentColor;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DAWVSCAudioProcessorEditor)
 };
