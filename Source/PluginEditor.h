@@ -45,28 +45,38 @@ private:
     juce::ListBox branchListBox;
     juce::StringArray branchList;
     class BranchListBoxModel : public juce::ListBoxModel
-	{
-		public:
-			BranchListBoxModel(juce::StringArray& branches) : branchList(branches) {}
+    {
+    public:
+        using ItemClickedCallback = std::function<void(int)>;
 
-			int getNumRows() override
-			{
-				return branchList.size();
-			}
+        BranchListBoxModel(juce::StringArray& branches, ItemClickedCallback callback)
+            : branchList(branches), itemClickedCallback(callback) {}
 
-			void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override
-			{
-				if (rowIsSelected)
-					g.fillAll(juce::Colours::lightblue);
+        int getNumRows() override
+        {
+            return branchList.size();
+        }
 
-				g.setColour(juce::Colours::black);
-				g.setFont(height * 0.5f);
-				g.drawText(branchList[rowNumber], 5, 0, width, height, juce::Justification::centredLeft, true);
-			}
+        void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override
+        {
+            if (rowIsSelected)
+                g.fillAll(juce::Colours::lightblue);
 
-		private:
-			juce::StringArray& branchList;
-	};
+            g.setColour(juce::Colours::black);
+            g.setFont(height * 0.5f);
+            g.drawText(branchList[rowNumber], 5, 0, width, height, juce::Justification::centredLeft, true);
+        }
+
+        void listBoxItemClicked(int row, const juce::MouseEvent&) override
+        {
+            if (itemClickedCallback)
+                itemClickedCallback(row);
+        }
+
+    private:
+        juce::StringArray& branchList;
+        ItemClickedCallback itemClickedCallback;
+    };
 
     CommitListBoxModel commitListBoxModel;
     BranchListBoxModel branchListBoxModel;
@@ -104,6 +114,8 @@ private:
     void refreshBranchListBox();
 
     std::unique_ptr<juce::AlertWindow> alertWindow;
+
+    void onBranchListItemClicked(int row);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DAWVSCAudioProcessorEditor)
 };

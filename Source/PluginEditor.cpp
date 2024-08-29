@@ -4,7 +4,9 @@
 //==============================================================================
 
 DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
-    : AudioProcessorEditor(&p), audioProcessor(p), commitListBoxModel(commitHistory), branchListBoxModel(branchList)
+    : AudioProcessorEditor(&p), audioProcessor(p),
+    commitListBoxModel(commitHistory),
+    branchListBoxModel(branchList, [this](int row) { onBranchListItemClicked(row); }) // Pass the callback here
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -258,7 +260,7 @@ void DAWVSCAudioProcessorEditor::refreshBranchListBox()
 		}
 	}
 	branchListBox.updateContent();
-    	if (headBranch >= 0)
+    if (headBranch >= 0)
 	{
 		branchListBox.selectRow(headBranch);
 	}
@@ -290,4 +292,12 @@ void DAWVSCAudioProcessorEditor::commitButtonClicked()
 	}));
 
 	this->alertWindow = std::move(alertWindow);
+}
+
+void DAWVSCAudioProcessorEditor::onBranchListItemClicked(int row)
+{
+    juce::String branchName = branchList[row];
+    branchName = branchName.fromFirstOccurrenceOf(" ", false, false);
+    juce::String cmd = "git checkout " + branchName;
+    executeAndRefresh(cmd);
 }
