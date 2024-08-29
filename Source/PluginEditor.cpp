@@ -145,31 +145,6 @@ void DAWVSCAudioProcessorEditor::browseButtonClicked()
         });
 
 }
-    // use this for the branch viewer somewhere maybe idk
-	//else
-	//{
- //       // Selecting a branch
- //       juce::StringArray branches = audioProcessor.getBranches();
-	//	juce::PopupMenu m;
-	//	for (int i = 0; i < branches.size(); i++)
-	//	{
- //           if (branches[i].isEmpty()) continue;
-	//		m.addItem(i + 1, branches[i]);
-	//	}
- //       m.showMenuAsync(
- //           juce::PopupMenu::Options().withTargetComponent(&browseButton),
- //           [this, branches](int result)
- //           {
- //               if (result > 0) // Check if a valid menu item is selected
- //               {
- //                   juce::String branch = branches[result - 1];
- //                   if (branch.contains("*")) return; // Do not checkout the current branch
- //                   juce::String cmd = "git checkout " + branch;
- //                   executeAndRefresh(cmd);
- //               }
- //           }
- //       );
-	//}
 
 void DAWVSCAudioProcessorEditor::checkoutButtonClicked()
 {
@@ -272,12 +247,21 @@ void DAWVSCAudioProcessorEditor::refreshCommitListBox()
 void DAWVSCAudioProcessorEditor::refreshBranchListBox()
 {
 	branchList.clear();
+    int headBranch = -1;
 	juce::StringArray branches = audioProcessor.getBranches();
 	for (int i = 0; i < branches.size(); i++)
 	{
 		branchList.add(branches[i]);
+        if (branches[i].contains("*"))
+		{
+			headBranch = i;
+		}
 	}
 	branchListBox.updateContent();
+    	if (headBranch >= 0)
+	{
+		branchListBox.selectRow(headBranch);
+	}
 }
 
 void DAWVSCAudioProcessorEditor::executeAndRefresh(juce::String command)
