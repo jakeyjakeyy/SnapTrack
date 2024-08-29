@@ -16,23 +16,28 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     resString = "Project path: " + projectPath + "\n";
     result.append(resString, resString.length());
 
-    // Check for git repository in project path
     if (projectPath.isNotEmpty())
     {
-        audioProcessor.checkForGit(projectPath);
+        audioProcessor.checkForGit(projectPath); // Check for git repository in project path
+        addAndMakeVisible(commitListBox);
+        addAndMakeVisible(commitButton);
+        addAndMakeVisible(checkoutButton);
+        addAndMakeVisible(goForwardButton);
+        addAndMakeVisible(branchListBox);
+        addAndMakeVisible(branchButton);
+        addAndMakeVisible(mergeButton);
+        addAndMakeVisible(deleteBranchButton);
+    }
+    else {
+        addAndMakeVisible(browseButton);
     }
 
     // Initialize Browse
-    //addAndMakeVisible(browseButton);
     browseButton.setButtonText("Browse...");
     browseButton.onClick = [this] { browseButtonClicked(); };
-    browseButton.setBounds(10, 10, getWidth() - 20, 20);
+    browseButton.setBounds(100, 75, 200, 150);
 
-    // Initialize ListBox
-    addAndMakeVisible(commitListBox);
-    addAndMakeVisible(commitButton);
-    addAndMakeVisible(checkoutButton);
-    addAndMakeVisible(goForwardButton);
+    // Commits Controls
     commitListBox.setModel(&commitListBoxModel);
     commitListBox.setBounds(130, 5, 260, 180);
     commitButton.setBounds(130, commitListBox.getBottom() + 5, 260, 45);
@@ -41,19 +46,12 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     commitButton.setButtonText("Take a Snapshot");
     checkoutButton.setButtonText("Checkout");
     goForwardButton.setButtonText("Return");
-
     refreshCommitListBox();
-    // Initialize callback for commit history changes
-    audioProcessor.setCommitHistoryChangedCallback([this] { refreshCommitListBox(); });
+    audioProcessor.setCommitHistoryChangedCallback([this] { refreshCommitListBox(); }); // Initialize callback for commit history changes
     checkoutButton.onClick = [this] { checkoutButtonClicked(); };
     goForwardButton.onClick = [this] { goForwardButtonClicked(); };
 
-
     // Branch Controls
-    addAndMakeVisible(branchListBox);
-    addAndMakeVisible(branchButton);
-    addAndMakeVisible(mergeButton);
-    addAndMakeVisible(deleteBranchButton);
     branchListBox.setModel(&branchListBoxModel);
     branchListBox.setBounds(10, 5, 110, 180);
     branchButton.setBounds(10, branchListBox.getBottom() + 5, 110, 45);
@@ -65,11 +63,6 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     branchButton.onClick = [this] { branchButtonClicked(); };
     mergeButton.onClick = [this] { mergeButtonClicked(); };
     deleteBranchButton.onClick = [this] { deleteBranchButtonClicked(); };
-
-
-
-
-
 
     // Fetch OS
     resString = "OS: " + audioProcessor.getOS() + "\n";
@@ -126,49 +119,55 @@ void DAWVSCAudioProcessorEditor::resized()
 
 void DAWVSCAudioProcessorEditor::browseButtonClicked()
 {
-    if (projectPath.isEmpty())
-	{
-        // Selecting a project directory
-        chooser = std::make_unique<juce::FileChooser>("Select project directory", juce::File::getSpecialLocation(juce::File::userHomeDirectory), "*");
+    // Selecting a project directory
+    chooser = std::make_unique<juce::FileChooser>("Select project directory", juce::File::getSpecialLocation(juce::File::userHomeDirectory), "*");
 
-        chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories,
-            [this](const juce::FileChooser& fc)
+    chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories,
+        [this](const juce::FileChooser& fc)
+        {
+            if (fc.getResult().exists())
             {
-                if (fc.getResult().exists())
-                {
-                    audioProcessor.setProjectPath(fc.getResult().getFullPathName());
-                    audioProcessor.checkForGit(audioProcessor.getProjectPath());
-                    refreshCommitListBox();
-                    browseButton.setButtonText("Branches");
-                }
-            });
-	}
-	else
-	{
-        // Selecting a branch
-        juce::StringArray branches = audioProcessor.getBranches();
-		juce::PopupMenu m;
-		for (int i = 0; i < branches.size(); i++)
-		{
-            if (branches[i].isEmpty()) continue;
-			m.addItem(i + 1, branches[i]);
-		}
-        m.showMenuAsync(
-            juce::PopupMenu::Options().withTargetComponent(&browseButton),
-            [this, branches](int result)
-            {
-                if (result > 0) // Check if a valid menu item is selected
-                {
-                    juce::String branch = branches[result - 1];
-                    if (branch.contains("*")) return; // Do not checkout the current branch
-                    juce::String cmd = "git checkout " + branch;
-                    executeAndRefresh(cmd);
-                }
+                audioProcessor.setProjectPath(fc.getResult().getFullPathName());
+                audioProcessor.checkForGit(audioProcessor.getProjectPath());
+                refreshCommitListBox();
+                addAndMakeVisible(branchListBox);
+                addAndMakeVisible(branchButton);
+                addAndMakeVisible(mergeButton);
+                addAndMakeVisible(deleteBranchButton);
+                addAndMakeVisible(commitListBox);
+                addAndMakeVisible(commitButton);
+                addAndMakeVisible(checkoutButton);
+                addAndMakeVisible(goForwardButton);
+                browseButton.setVisible(false);
             }
-        );
-	}
+        });
 
 }
+    // use this for the branch viewer somewhere maybe idk
+	//else
+	//{
+ //       // Selecting a branch
+ //       juce::StringArray branches = audioProcessor.getBranches();
+	//	juce::PopupMenu m;
+	//	for (int i = 0; i < branches.size(); i++)
+	//	{
+ //           if (branches[i].isEmpty()) continue;
+	//		m.addItem(i + 1, branches[i]);
+	//	}
+ //       m.showMenuAsync(
+ //           juce::PopupMenu::Options().withTargetComponent(&browseButton),
+ //           [this, branches](int result)
+ //           {
+ //               if (result > 0) // Check if a valid menu item is selected
+ //               {
+ //                   juce::String branch = branches[result - 1];
+ //                   if (branch.contains("*")) return; // Do not checkout the current branch
+ //                   juce::String cmd = "git checkout " + branch;
+ //                   executeAndRefresh(cmd);
+ //               }
+ //           }
+ //       );
+	//}
 
 void DAWVSCAudioProcessorEditor::checkoutButtonClicked()
 {
