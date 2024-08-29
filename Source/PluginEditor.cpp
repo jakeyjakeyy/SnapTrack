@@ -207,8 +207,19 @@ void DAWVSCAudioProcessorEditor::deleteBranchButtonClicked()
     }
     else
     {
-        juce::String cmd = "git checkout master && git branch -D " + currentBranch;
-        executeAndRefresh(cmd);
+        auto alertWindow = std::make_unique<juce::AlertWindow>("Delete branch", "Are you sure you want to delete the current branch?", juce::AlertWindow::NoIcon);
+        alertWindow->addButton("Delete", 1);
+        alertWindow->addButton("Cancel", 0);
+        alertWindow->enterModalState(true, juce::ModalCallbackFunction::create([this, alertWindow = alertWindow.get()](int result) mutable
+		{
+			if (result != 0)
+			{
+				juce::String cmd = "git checkout master && git branch -D " + audioProcessor.getCurrentBranch();
+				executeAndRefresh(cmd);
+			}
+			this->alertWindow.reset();
+		}));
+        this->alertWindow = std::move(alertWindow);
     }
 }
 
@@ -225,9 +236,20 @@ void DAWVSCAudioProcessorEditor::mergeButtonClicked()
 	}
 	else
 	{
-		executeAndRefresh("git checkout master && git merge " + currentBranch);
-        juce::String cmd = "git branch -D " + currentBranch;
-        audioProcessor.executeCommand(cmd.toStdString());
+        auto alertWindow = std::make_unique<juce::AlertWindow>("Merge branch", "Are you sure you want to merge the current branch into master?", juce::AlertWindow::NoIcon);
+        alertWindow->addButton("Merge", 1);
+        alertWindow->addButton("Cancel", 0);
+        alertWindow->enterModalState(true, juce::ModalCallbackFunction::create([this, alertWindow = alertWindow.get()](int result) mutable
+        {
+            if (result != 0)
+			{
+                juce::String branchName = audioProcessor.getCurrentBranch().trim();
+				juce::String cmd = "git checkout master && git merge " + branchName + " && git branch -D " + branchName;
+				executeAndRefresh(cmd);
+			}
+			this->alertWindow.reset();
+		}));
+        this->alertWindow = std::move(alertWindow);
 	}
 }
 
