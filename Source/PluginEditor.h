@@ -34,7 +34,7 @@ private:
                     g.fillAll(juce::Colours::lightblue);
 
                 g.setColour(juce::Colours::black);
-                g.setFont(height * 0.7f);
+                g.setFont(height * 0.5f);
                 g.drawText(commitHistory[rowNumber], 5, 0, width, height, juce::Justification::centredLeft, true);
             }
 
@@ -42,15 +42,48 @@ private:
             juce::StringArray& commitHistory;
     };
 
+    juce::ListBox branchListBox;
+    juce::StringArray branchList;
+    class BranchListBoxModel : public juce::ListBoxModel
+	{
+		public:
+			BranchListBoxModel(juce::StringArray& branches) : branchList(branches) {}
+
+			int getNumRows() override
+			{
+				return branchList.size();
+			}
+
+			void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override
+			{
+				if (rowIsSelected)
+					g.fillAll(juce::Colours::lightblue);
+
+				g.setColour(juce::Colours::black);
+				g.setFont(height * 0.5f);
+				g.drawText(branchList[rowNumber], 5, 0, width, height, juce::Justification::centredLeft, true);
+			}
+
+		private:
+			juce::StringArray& branchList;
+	};
+
     CommitListBoxModel commitListBoxModel;
+    BranchListBoxModel branchListBoxModel;
 
     DAWVSCAudioProcessor& audioProcessor;
+
+    // Init Browse button (when no ProjectPath is set)
     juce::TextButton browseButton;
-    juce::TextButton checkoutButton;
+    // Branch Controls
     juce::TextButton branchButton;
     juce::TextButton deleteBranchButton;
     juce::TextButton mergeButton;
+    // Commit Controls
+    juce::TextButton commitButton;
+    juce::TextButton checkoutButton;
     juce::TextButton goForwardButton;
+
     std::unique_ptr<juce::FileChooser> chooser;
     juce::String projectPath;
     juce::String resString;

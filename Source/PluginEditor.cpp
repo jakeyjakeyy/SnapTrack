@@ -4,7 +4,7 @@
 //==============================================================================
 
 DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
-    : AudioProcessorEditor(&p), audioProcessor(p), commitListBoxModel(commitHistory)
+    : AudioProcessorEditor(&p), audioProcessor(p), commitListBoxModel(commitHistory), branchListBoxModel(branchList)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -22,52 +22,54 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
         audioProcessor.checkForGit(projectPath);
     }
 
-    // Initialize buttons
-    addAndMakeVisible(browseButton);
-    addAndMakeVisible(checkoutButton);
-    addAndMakeVisible(branchButton);
-    addAndMakeVisible(deleteBranchButton);
-    addAndMakeVisible(mergeButton);
-    addAndMakeVisible(goForwardButton);
-
-    // set button text
-    if (projectPath.isNotEmpty())
-	{
-		browseButton.setButtonText("Branches");
-	}
-	else
-	{
-		browseButton.setButtonText("Browse...");
-	}
-    checkoutButton.setButtonText("Checkout");
-    branchButton.setButtonText("Create Branch");
-    deleteBranchButton.setButtonText("Delete branch");
-    mergeButton.setButtonText("Merge");
-    goForwardButton.setButtonText("Return");
-
-    // on click events
+    // Initialize Browse
+    //addAndMakeVisible(browseButton);
+    browseButton.setButtonText("Browse...");
     browseButton.onClick = [this] { browseButtonClicked(); };
-    checkoutButton.onClick = [this] { checkoutButtonClicked(); };
-    goForwardButton.onClick = [this] { goForwardButtonClicked(); };
-    branchButton.onClick = [this] { branchButtonClicked(); };
-    deleteBranchButton.onClick = [this] { deleteBranchButtonClicked(); };
-    mergeButton.onClick = [this] { mergeButtonClicked(); };
-
-    // set button bounds
     browseButton.setBounds(10, 10, getWidth() - 20, 20);
-    checkoutButton.setBounds(10, 40, 100, 20);
-    branchButton.setBounds(110, 40, 60, 20);
-    deleteBranchButton.setBounds(170, 40, 60, 20);
-    mergeButton.setBounds(230, 40, 60, 20);
-    goForwardButton.setBounds(290, 40, 100, 20);
 
     // Initialize ListBox
     addAndMakeVisible(commitListBox);
+    addAndMakeVisible(commitButton);
+    addAndMakeVisible(checkoutButton);
+    addAndMakeVisible(goForwardButton);
     commitListBox.setModel(&commitListBoxModel);
-    commitListBox.setBounds(10, 70, getWidth() - 20, getHeight() - 80);
+    commitListBox.setBounds(130, 5, 260, 180);
+    commitButton.setBounds(130, commitListBox.getBottom() + 5, 260, 45);
+    checkoutButton.setBounds(130, commitButton.getBottom(), 130, 45);
+    goForwardButton.setBounds(checkoutButton.getRight(), commitButton.getBottom(), 130, 45);
+    commitButton.setButtonText("Take a Snapshot");
+    checkoutButton.setButtonText("Checkout");
+    goForwardButton.setButtonText("Return");
+
     refreshCommitListBox();
     // Initialize callback for commit history changes
     audioProcessor.setCommitHistoryChangedCallback([this] { refreshCommitListBox(); });
+    checkoutButton.onClick = [this] { checkoutButtonClicked(); };
+    goForwardButton.onClick = [this] { goForwardButtonClicked(); };
+
+
+    // Branch Controls
+    addAndMakeVisible(branchListBox);
+    addAndMakeVisible(branchButton);
+    addAndMakeVisible(mergeButton);
+    addAndMakeVisible(deleteBranchButton);
+    branchListBox.setModel(&branchListBoxModel);
+    branchListBox.setBounds(10, 5, 110, 180);
+    branchButton.setBounds(10, branchListBox.getBottom() + 5, 110, 45);
+    mergeButton.setBounds(10, branchButton.getBottom(), 55, 45);
+    deleteBranchButton.setBounds(mergeButton.getRight(), branchButton.getBottom(), 55, 45);
+    branchButton.setButtonText("Create Branch");
+    mergeButton.setButtonText("Merge");
+    deleteBranchButton.setButtonText("Delete");
+    branchButton.onClick = [this] { branchButtonClicked(); };
+    mergeButton.onClick = [this] { mergeButtonClicked(); };
+    deleteBranchButton.onClick = [this] { deleteBranchButtonClicked(); };
+
+
+
+
+
 
     // Fetch OS
     resString = "OS: " + audioProcessor.getOS() + "\n";
