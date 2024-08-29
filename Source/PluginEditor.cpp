@@ -50,6 +50,7 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     audioProcessor.setCommitHistoryChangedCallback([this] { refreshCommitListBox(); }); // Initialize callback for commit history changes
     checkoutButton.onClick = [this] { checkoutButtonClicked(); };
     goForwardButton.onClick = [this] { goForwardButtonClicked(); };
+    commitButton.onClick = [this] { commitButtonClicked(); };
 
     // Branch Controls
     branchListBox.setModel(&branchListBoxModel);
@@ -60,6 +61,7 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     branchButton.setButtonText("Create Branch");
     mergeButton.setButtonText("Merge");
     deleteBranchButton.setButtonText("Delete");
+    refreshBranchListBox();
     branchButton.onClick = [this] { branchButtonClicked(); };
     mergeButton.onClick = [this] { mergeButtonClicked(); };
     deleteBranchButton.onClick = [this] { deleteBranchButtonClicked(); };
@@ -267,9 +269,41 @@ void DAWVSCAudioProcessorEditor::refreshCommitListBox()
     commitListBox.selectRow(0);
 }
 
+void DAWVSCAudioProcessorEditor::refreshBranchListBox()
+{
+	branchList.clear();
+	juce::StringArray branches = audioProcessor.getBranches();
+	for (int i = 0; i < branches.size(); i++)
+	{
+		branchList.add(branches[i]);
+	}
+	branchListBox.updateContent();
+}
+
 void DAWVSCAudioProcessorEditor::executeAndRefresh(juce::String command)
 {
     // Execute command and refresh the DAW
 	audioProcessor.executeCommand(command.toStdString());
 	audioProcessor.reloadWorkingTree();
+}
+
+void DAWVSCAudioProcessorEditor::commitButtonClicked()
+{
+    auto alertWindow = std::make_unique<juce::AlertWindow>("Take a snapshot", "Enter commit message", juce::AlertWindow::NoIcon);
+	alertWindow->addTextEditor("commitMessage", "", "Commit message:");
+	alertWindow->addButton("Commit", 1);
+	alertWindow->addButton("Cancel", 0);
+	alertWindow->enterModalState(true, juce::ModalCallbackFunction::create([this, alertWindow = alertWindow.get()](int result) mutable
+	{
+		if (result != 0)
+		{
+			juce::String commitMessage = alertWindow->getTextEditorContents("commitMessage");
+            if (commitMessage.isEmpty()) commitMessage = "No message attached";
+			juce::String cmd = "git add . && git commit -m \"" + commitMessage + "\"";
+			executeAndRefresh(cmd);
+		}
+		this->alertWindow.reset();
+	}));
+
+	this->alertWindow = std::move(alertWindow);
 }

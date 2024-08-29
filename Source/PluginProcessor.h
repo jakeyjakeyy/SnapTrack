@@ -20,7 +20,7 @@
 //==============================================================================
 /**
 */
-class DAWVSCAudioProcessor  : public juce::AudioProcessor, public juce::Timer
+class DAWVSCAudioProcessor  : public juce::AudioProcessor
 {
 public:
     //==============================================================================
@@ -70,7 +70,6 @@ public:
     juce::String getOS();
     juce::String getGitVersion();
 
-    void timerCallback() override;
     void checkGitStatus();
 
     void reloadWorkingTree();

@@ -24,12 +24,10 @@ DAWVSCAudioProcessor::DAWVSCAudioProcessor()
                        )
 #endif
 {
-    startTimer(1000);
 }
 
 DAWVSCAudioProcessor::~DAWVSCAudioProcessor()
 {
-    stopTimer();
 }
 
 //==============================================================================
@@ -330,7 +328,6 @@ void DAWVSCAudioProcessor::checkForGit(const juce::String& path)
             result.append(resString, resString.length());
             executeCommand("sh -c 'echo Backup/ > .gitignore && echo \"Ableton Project Info/\" >> .gitignore'");
         }
-        executeCommand("git add . && git commit -m \"Initial commit\"");
         resString = "Git repository initialized\n";
         result.append(resString, resString.length());
         checkForGit(path);
@@ -354,11 +351,6 @@ juce::String DAWVSCAudioProcessor::getGitVersion()
 	executeCommand("git --version");
     gitVersion = result;
 	return gitVersion;
-}
-
-void DAWVSCAudioProcessor::timerCallback()
-{
-    checkGitStatus();
 }
 
 void DAWVSCAudioProcessor::checkGitStatus()

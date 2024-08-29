@@ -96,10 +96,12 @@ private:
     void branchButtonClicked();
     void deleteBranchButtonClicked();
     void mergeButtonClicked();
+    void commitButtonClicked();
 
     void executeAndRefresh(juce::String command);
 
     void refreshCommitListBox();
+    void refreshBranchListBox();
 
     std::unique_ptr<juce::AlertWindow> alertWindow;
 
