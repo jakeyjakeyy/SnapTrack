@@ -33,8 +33,14 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     getLookAndFeel().setColour(juce::TextButton::textColourOffId, textColor);
     
     // Alert window components
-    
-
+    customLookAndFeel.setColour(juce::AlertWindow::backgroundColourId, backgroundColor);
+    customLookAndFeel.setColour(juce::AlertWindow::textColourId, textColor);
+    customLookAndFeel.setColour(juce::AlertWindow::outlineColourId, accentColor);
+    customLookAndFeel.setColour(juce::TextEditor::backgroundColourId, secondaryBackgroundColor);
+    customLookAndFeel.setColour(juce::TextEditor::textColourId, textColor);
+    customLookAndFeel.setColour(juce::TextEditor::outlineColourId, accentColor);
+    customLookAndFeel.setColour(juce::TextButton::buttonColourId, primaryColor);
+    customLookAndFeel.setColour(juce::TextButton::textColourOffId, textColor);
 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -196,6 +202,7 @@ void DAWVSCAudioProcessorEditor::goForwardButtonClicked()
 void DAWVSCAudioProcessorEditor::branchButtonClicked()
 {
     auto alertWindow = std::make_unique<juce::AlertWindow>("Create branch", "Enter branch name", juce::AlertWindow::NoIcon);
+    alertWindow->setLookAndFeel(&customLookAndFeel);
     alertWindow->addTextEditor("branchName", "", "Branch name:");
     alertWindow->addButton("Create", 1);
     alertWindow->addButton("Cancel", 0);
@@ -230,6 +237,7 @@ void DAWVSCAudioProcessorEditor::deleteBranchButtonClicked()
     else
     {
         auto alertWindow = std::make_unique<juce::AlertWindow>("Delete branch", "Are you sure you want to delete the current branch?", juce::AlertWindow::NoIcon);
+        alertWindow->setLookAndFeel(&customLookAndFeel);
         alertWindow->addButton("Delete", 1);
         alertWindow->addButton("Cancel", 0);
         alertWindow->enterModalState(true, juce::ModalCallbackFunction::create([this, alertWindow = alertWindow.get()](int result) mutable
@@ -259,6 +267,7 @@ void DAWVSCAudioProcessorEditor::mergeButtonClicked()
 	else
 	{
         auto alertWindow = std::make_unique<juce::AlertWindow>("Merge branch", "Are you sure you want to merge the current branch into master?", juce::AlertWindow::NoIcon);
+        alertWindow->setLookAndFeel(&customLookAndFeel);
         alertWindow->addButton("Merge", 1);
         alertWindow->addButton("Cancel", 0);
         alertWindow->enterModalState(true, juce::ModalCallbackFunction::create([this, alertWindow = alertWindow.get()](int result) mutable
@@ -320,6 +329,7 @@ void DAWVSCAudioProcessorEditor::executeAndRefresh(juce::String command)
 void DAWVSCAudioProcessorEditor::commitButtonClicked()
 {
     auto alertWindow = std::make_unique<juce::AlertWindow>("Take a snapshot", "Enter commit message", juce::AlertWindow::NoIcon);
+    alertWindow->setLookAndFeel(&customLookAndFeel);
 	alertWindow->addTextEditor("commitMessage", "", "Commit message:");
 	alertWindow->addButton("Commit", 1);
 	alertWindow->addButton("Cancel", 0);

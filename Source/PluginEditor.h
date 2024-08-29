@@ -124,5 +124,7 @@ private:
     juce::Colour secondaryColor;
     juce::Colour accentColor;
 
+    juce::LookAndFeel_V4 customLookAndFeel;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DAWVSCAudioProcessorEditor)
 };
