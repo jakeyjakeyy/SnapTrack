@@ -344,6 +344,7 @@ void DAWVSCAudioProcessorEditor::commitButtonClicked()
 			juce::String cmd = "git add . && git commit -m \"" + commitMessage + "\"";
 			audioProcessor.executeCommand(cmd.toStdString());
             refreshCommitListBox();
+            refreshBranchListBox();
 		}
 		this->alertWindow.reset();
 	}));
