@@ -6,8 +6,11 @@
 DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     : AudioProcessorEditor(&p), audioProcessor(p),
     commitListBoxModel(commitHistory),
-    branchListBoxModel(branchList, [this](int row) { onBranchListItemClicked(row); }) // Pass the callback here
+    branchListBoxModel(branchList, [this](int row) { onBranchListItemClicked(row); })
 {
+
+    //Fetch OS
+    audioProcessor.getOS();
     // Check git installation
     gitInstalled = false;
     gitVersion = audioProcessor.getGitVersion();
@@ -93,7 +96,6 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     checkoutButton.setButtonText("Checkout");
     goForwardButton.setButtonText("Return");
     refreshCommitListBox();
-    audioProcessor.setCommitHistoryChangedCallback([this] { refreshCommitListBox(); }); // Initialize callback for commit history changes
     checkoutButton.onClick = [this] { checkoutButtonClicked(); };
     goForwardButton.onClick = [this] { goForwardButtonClicked(); };
     commitButton.onClick = [this] { commitButtonClicked(); };
@@ -112,9 +114,6 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     mergeButton.onClick = [this] { mergeButtonClicked(); };
     deleteBranchButton.onClick = [this] { deleteBranchButtonClicked(); };
 
-    // Fetch OS
-    //resString = "OS: " + audioProcessor.getOS() + "\n";
-    //result.append(resString, resString.length());
 
     // Editor Created
 }
@@ -164,6 +163,7 @@ void DAWVSCAudioProcessorEditor::browseButtonClicked()
                 audioProcessor.setProjectPath(fc.getResult().getFullPathName());
                 audioProcessor.checkForGit(audioProcessor.getProjectPath());
                 refreshCommitListBox();
+                refreshBranchListBox();
                 addAndMakeVisible(branchListBox);
                 addAndMakeVisible(branchButton);
                 addAndMakeVisible(mergeButton);
