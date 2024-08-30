@@ -96,8 +96,6 @@ private:
 
     std::unique_ptr<juce::FileChooser> chooser;
     juce::String projectPath;
-    juce::String resString;
-    juce::String result;
     juce::Label debugText;
 
     void browseButtonClicked();
@@ -125,6 +123,10 @@ private:
     juce::Colour accentColor;
 
     juce::LookAndFeel_V4 customLookAndFeel;
+
+    bool gitInstalled;
+    juce::String gitVersion;
+    juce::String gitNotInstalledMessage;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DAWVSCAudioProcessorEditor)
 };

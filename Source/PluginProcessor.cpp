@@ -308,34 +308,23 @@ void DAWVSCAudioProcessor::checkForGit(const juce::String& path)
     juce::File projectDir(path);
     juce::Array<juce::File> gitFolders;
     projectDir.findChildFiles(gitFolders, juce::File::findDirectories, false, ".git");
-    juce::String resString = "";
-    juce::String result = "";
 
     if (gitFolders.isEmpty())
     {
         DBG("Git repository not found, initializing git repository in " + path);
-        resString = "Git repository not found, initializing git repository in " + path + "\n";
-        result.append(resString, resString.length());
         DBG("Attempting initialization of git repository in " + path);
         executeCommand("git init");
         if (os.toLowerCase().contains("windows") || os.toLowerCase().contains("mac")) {
-            resString = "Creating .gitignore for windows/mac\n";
-            result.append(resString, resString.length());
             executeCommand("echo Backup/ > .gitignore && echo Ableton Project Info/ >> .gitignore");
         }
         else if (os.toLowerCase().contains("linux")) {
-            resString = "Creating .gitignore for linux\n";
-            result.append(resString, resString.length());
             executeCommand("sh -c 'echo Backup/ > .gitignore && echo \"Ableton Project Info/\" >> .gitignore'");
         }
-        resString = "Git repository initialized\n";
-        result.append(resString, resString.length());
         checkForGit(path);
     }
     else
     {
-        resString = "gitFolders is not empty\n";
-        result.append(resString, resString.length());
+        // git repository found
     }
 }
 
@@ -348,7 +337,7 @@ juce::String DAWVSCAudioProcessor::getOS()
 juce::String DAWVSCAudioProcessor::getGitVersion()
 {
 	juce::String result;
-	executeCommand("git --version");
+	result = executeCommand("git --version");
     gitVersion = result;
 	return gitVersion;
 }

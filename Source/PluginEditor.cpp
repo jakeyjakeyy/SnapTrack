@@ -8,6 +8,15 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     commitListBoxModel(commitHistory),
     branchListBoxModel(branchList, [this](int row) { onBranchListItemClicked(row); }) // Pass the callback here
 {
+    // Check git installation
+    gitInstalled = false;
+    gitVersion = audioProcessor.getGitVersion();
+    DBG("Git version: " + gitVersion);
+    if (gitVersion.contains("git version"))
+    {
+		gitInstalled = true;
+    }
+
 
     // Colors
     textColor = juce::Colour(6, 6, 5);
@@ -49,8 +58,6 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     // Get project path
     projectPath = audioProcessor.getProjectPath();
     DBG("Project path: " + projectPath);
-    resString = "Project path: " + projectPath + "\n";
-    result.append(resString, resString.length());
 
     if (projectPath.isNotEmpty())
     {
@@ -64,9 +71,12 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
         addAndMakeVisible(mergeButton);
         addAndMakeVisible(deleteBranchButton);
     }
-    else {
+    else if (gitInstalled) {
         addAndMakeVisible(browseButton);
-    }
+    } else {
+		DBG("Git is not installed");
+        gitNotInstalledMessage = "Git is not installed.";
+	}
 
     // Initialize Browse
     browseButton.setButtonText("Browse...");
@@ -103,25 +113,10 @@ DAWVSCAudioProcessorEditor::DAWVSCAudioProcessorEditor(DAWVSCAudioProcessor& p)
     deleteBranchButton.onClick = [this] { deleteBranchButtonClicked(); };
 
     // Fetch OS
-    resString = "OS: " + audioProcessor.getOS() + "\n";
-    result.append(resString, resString.length());
+    //resString = "OS: " + audioProcessor.getOS() + "\n";
+    //result.append(resString, resString.length());
 
-    // Check git installation
-    juce::String gitVersion = audioProcessor.getGitVersion();
-    if (gitVersion.isEmpty())
-    {
-        resString = "Git not installed\n";
-        result.append(resString, resString.length());
-    }
-    else
-    {
-        resString = "Git version: " + gitVersion + "\n";
-        result.append(resString, resString.length());
-    }
-
-    resString = "Editor created\n";
-    result.append(resString, resString.length());
-    debugText.setText(result, juce::dontSendNotification);
+    // Editor Created
 }
 
 DAWVSCAudioProcessorEditor::~DAWVSCAudioProcessorEditor()
@@ -134,6 +129,13 @@ void DAWVSCAudioProcessorEditor::paint(juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll(backgroundColor);
+
+    if (!gitInstalled)
+    {
+        g.setFont(20.0f);
+        g.setColour(textColor);
+        g.drawText(gitNotInstalledMessage, getLocalBounds(), juce::Justification::centred);
+    }
 }
 
 void DAWVSCAudioProcessorEditor::resized()
