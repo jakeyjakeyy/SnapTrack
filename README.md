@@ -1,20 +1,20 @@
 # SnapTrack
 
 ## Overview
-SnapTrack is a VST3 plugin designed to revolutionize how you manage your music projects by integrating version control directly into your digital audio workstation (DAW). Forget about juggling multiple filenames like ìproject_v1,î ìproject_final,î or ìproject_newdrumsîówith SnapTrack, you can effortlessly take snapshots of your project every time you save.
+SnapTrack is a VST3 plugin designed to revolutionize how you manage your music projects by integrating version control directly into your digital audio workstation (DAW). Forget about juggling multiple filenames like ‚Äúproject_v1,‚Äù ‚Äúproject_final,‚Äù or ‚Äúproject_newdrums‚Äù‚Äîwith SnapTrack, you can effortlessly take snapshots of your project every time you save.
 
 This means you can experiment freely, undo changes, and return to any previous version of your work with just a click. Whether you're new to version control or already familiar with Git, SnapTrack offers an intuitive interface specifically tailored for music producers, ensuring that you never lose track of your creative journey.
 
 ## Key Features
 - **Automatic Git Integration:** SnapTrack sets up a Git repository in your project directory when you first add the plugin, making version control effortless.
-- **Simple Controls:** 
+- **Simple Controls:**
+  - **Take a Snapshot:** Save the current state of your project. 
   - **Checkout:** Revert to a previous snapshot of your project from any point in history.
   - **Create Branch:** Create a new version of your project to experiment with different ideas without affecting your main project.
-  - **Delete Branch:** You tried something new, but it didnít work out. No problemódelete the branch and go back to your original project.
+  - **Delete:** Delete the current branch and go back to your original project.
   - **Merge**: If you like the changes you made in a branch, merge them back into your main project.
   - **Return:** Go back to the most recent snapshot of your project.
-- **Auto Commit:** Automatically creates a snapshot of your project every time you save your DAW project file.
-- **Visual History:** Navigate through your projectís history with a simple commit viewer, making it easy to track changes over time.
+- **Visual History:** Navigate through your project‚Äôs history and branches with a simple commit viewer, making it easy to track changes over time.
 
 ## Getting Started
 1. **Install Git:** If you don't already have Git installed on your computer, you can download it [here](https://git-scm.com/downloads). Select your operating system and follow the instructions on the website.
@@ -26,8 +26,10 @@ This means you can experiment freely, undo changes, and return to any previous v
 ### Quick Start Video
 For a visual guide on how to get started with SnapTrack, check out our [Quickstart Video on YouTube](https://youtu.be/pCoJj8vFBQM?si=duWJ4n9o76mSle35).
 
+***Updated video for v1.0.0 coming soon!***
+
 ## Advanced Use
-While SnapTrack simplifies version control, itís built on the powerful Git system. If you want more control over your project's version history, consider spending some time learning Git. 
+While SnapTrack simplifies version control, it‚Äôs built on the powerful Git system. If you want more control over your project's version history, consider spending some time learning Git. 
 
 I highly recommend reading at least the first few chapters of [Pro Git](https://git-scm.com/book/en/v2) to get a deeper understanding Git.
 
