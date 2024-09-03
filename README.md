@@ -37,3 +37,8 @@ I highly recommend reading at least the first few chapters of [Pro Git](https://
 If you encounter any bugs or would like to see a new feature, please make a new [Issue](https://www.github.com/jakeyjakeyy/SnapTrack/issues).
 
 SnapTrack was built and tested on Windows with Ableton. 
+
+## Images
+
+![1724983988874](https://github.com/user-attachments/assets/df6ece04-78a0-4bc3-96e8-e842c05aeda5)
+
