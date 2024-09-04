@@ -24,9 +24,7 @@ This means you can experiment freely, undo changes, and return to any previous v
 4. **Start Creating:** As you work, SnapTrack will automatically take snapshots of your project whenever you save, allowing you to go back, branch out, or move forward as needed.
 
 ### Quick Start Video
-For a visual guide on how to get started with SnapTrack, check out our [Quickstart Video on YouTube](https://youtu.be/pCoJj8vFBQM?si=duWJ4n9o76mSle35).
-
-***Updated video for v1.0.0 coming soon!***
+For a visual guide on how to get started with SnapTrack, check out our [Quickstart Video on YouTube](https://youtu.be/j3oDj4kZQ0Q).
 
 ## Advanced Use
 While SnapTrack simplifies version control, it’s built on the powerful Git system. If you want more control over your project's version history, consider spending some time learning Git. 
